@@ -189,6 +189,10 @@ var elasticSearch = (function () {
         });
     }
 
+    /**
+     * Retorna un json con los aggregation para los filtros
+     * @param {array} preciosRedis - Precios del cache de REDIS
+     */
     function queryAggregation(preciosRedis) {
         let ranges = [];
 
@@ -221,7 +225,30 @@ var elasticSearch = (function () {
                 }
 
             }
-        }
+        };
+    }
+
+    /**
+     * Devuelve un json con los analizadores
+     * @param {string} texto - Texto de busqueda
+     */
+    function queryMultiMatch(texto) {
+        let textConverted = utils.decodeText(texto);
+        return [{
+            multi_match: {
+                query: textConverted,
+                type: 'cross_fields',
+                fields: [
+                    "textoBusqueda.ngram",
+                    "cuv",
+                    "categorias.ngram",
+                    "grupoArticulos.ngram",
+                    "lineas.ngram",
+                    "marcas.ngram"
+                ],
+                "operator": "and"
+            }
+        }];
     }
 
     function QueryBuscador(parametrosEntrada, preciosRedis) {
@@ -230,7 +257,6 @@ var elasticSearch = (function () {
             should = [],
             must = queryParametrosEnDuro();
 
-        let textConverted = utils.decodeText(parametrosEntrada.textoBusqueda);
 
         //#region filtros
         let filtroPush = queryFiltros(parametros);
@@ -264,6 +290,7 @@ var elasticSearch = (function () {
         //#region aggregation
         let aggregation = queryAggregation(preciosRedis);
         //#endregion
+        let multi_match = queryMultiMatch(parametrosEntrada.textoBusqueda);
 
         return {
             from: parametrosEntrada.fromValue,
@@ -271,21 +298,7 @@ var elasticSearch = (function () {
             sort: parametrosEntrada.sortValue,
             query: {
                 bool: {
-                    must: [{
-                        multi_match: {
-                            query: textConverted,
-                            type: 'cross_fields',
-                            fields: [
-                                "textoBusqueda.ngram",
-                                "cuv",
-                                "categorias.ngram",
-                                "grupoArticulos.ngram",
-                                "lineas.ngram",
-                                "marcas.ngram"
-                            ],
-                            "operator": "and"
-                        }
-                    }],
+                    'must': multi_match,
                     must_not: {
                         bool: {
                             must: [{
