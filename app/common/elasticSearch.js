@@ -28,6 +28,25 @@ var elasticSearch = (function () {
     }
 
     /**
+     * Retorna JSON con parametros necesarios
+     */
+    function queryParametrosEnDuro() {
+        return [{
+                term: {
+                    "activo": true
+                }
+            },
+            {
+                range: {
+                    "precio": {
+                        "gt": 0
+                    }
+                }
+            }
+        ];
+    }
+
+    /**
      * Devuelve un json con los datos de los filtros
      * @param {array} parametros - Parametros de entrada que recibe la aplicación
      */
@@ -44,7 +63,9 @@ var elasticSearch = (function () {
             for (const i in filtroCategoria) {
                 const element = filtroCategoria[i];
                 categorias.push({
-                    term: { "categorias.keyword": element.nombreFiltro }
+                    term: {
+                        "categorias.keyword": element.nombreFiltro
+                    }
                 });
             }
             must.push({
@@ -58,7 +79,9 @@ var elasticSearch = (function () {
             for (const i in filtroMarca) {
                 const element = filtroMarca[i];
                 marcas.push({
-                    term: { "marcas.keyword": element.nombreFiltro }
+                    term: {
+                        "marcas.keyword": element.nombreFiltro
+                    }
                 });
             }
             must.push({
@@ -72,10 +95,17 @@ var elasticSearch = (function () {
             for (const i in filtroPrecio) {
                 const element = filtroPrecio[i];
                 let precio = [];
-                if (element.min > 0 && element.max > 0) precio.push({ from: element.min, to: element.max });
+                if (element.min > 0 && element.max > 0) precio.push({
+                    from: element.min,
+                    to: element.max
+                });
                 else {
-                    if (element.max > 0) precio.push({ to: element.max });
-                    if (element.min > 0) precio.push({ from: element.min });
+                    if (element.max > 0) precio.push({
+                        to: element.max
+                    });
+                    if (element.min > 0) precio.push({
+                        from: element.min
+                    });
                 }
 
                 if (precio.length > 0) {
@@ -95,90 +125,73 @@ var elasticSearch = (function () {
         return must;
     }
 
-    function QueryBuscador(parametrosEntrada, preciosRedis) {
-
+    /**
+     * Funcion para validar las personalizaciones
+     * @param {array} parametros - Parametros que recibe la consultora
+     * @param {json} should - ByRef de la consulta, esto realizará un push
+     */
+    function queryPersonalizaciones(parametros, should) {
         let consultoraX = config.constantes.consultoraX,
             consultoraY = config.constantes.consultoraY,
-            consultora0 = config.constantes.consultora0,
-            personalizaciones = config.constantes.Personalizacion,
-            should = [],
-            must_not = [],
-            must = [
-                { term: { "activo": true } },
-                { range: { "precio": { "gt": 0 } } }
-            ];
-
-        let textConverted = utils.decodeText(parametrosEntrada.textoBusqueda);
-        //aqui va los filtros
-        let filtroPush = queryFiltros(parametros);
-
-        must.push(
-            {
-                bool: {
-                    'must': filtroPush
-                }
-            }
-        );
-        //#endregion
-
-        //#region condiciones filtros
-
-        if (config.flags.logicaODD) {
-            personalizaciones = filtroOfertaDelDia.filtrar(parametrosEntrada, personalizaciones, should);
-        }
-
-        if (config.flags.logicaGN) {
-            personalizaciones = filtroGuiaNegocioDigital.filtrar(parametrosEntrada, personalizaciones);
-        }
+            consultora0 = config.constantes.consultora0;
 
         personalizaciones.forEach(element => {
 
-            let isDummy = utils.isDummy(parametrosEntrada.personalizaciones, element);
+            let isDummy = utils.isDummy(parametros.personalizaciones, element);
             let must_dummy = [];
 
             if (isDummy) {
 
-                must_dummy.push({ term: { "tipoPersonalizacion": element } });
+                must_dummy.push({
+                    term: {
+                        "tipoPersonalizacion": element
+                    }
+                });
 
                 if (element == 'CAT' || element == 'LIQ' || element == 'HV') {
-                    must_dummy.push({ term: { "codigoConsultora": consultora0 } });
+                    must_dummy.push({
+                        term: {
+                            "codigoConsultora": consultora0
+                        }
+                    });
                 } else {
-                    must_dummy.push({ terms: { "codigoConsultora": [consultoraX, consultoraY] } });
+                    must_dummy.push({
+                        terms: {
+                            "codigoConsultora": [consultoraX, consultoraY]
+                        }
+                    });
                 }
 
-                should.push({ bool: { 'must': must_dummy } });
+                should.push({
+                    bool: {
+                        'must': must_dummy
+                    }
+                });
 
             } else {
-                must_dummy.push({ term: { "tipoPersonalizacion": element } });
-                must_dummy.push({ terms: { "codigoConsultora": [parametrosEntrada.codigoConsultora, consultoraY, consultora0] } });
+                must_dummy.push({
+                    term: {
+                        "tipoPersonalizacion": element
+                    }
+                });
+                must_dummy.push({
+                    terms: {
+                        "codigoConsultora": [parametros.codigoConsultora, consultoraY, consultora0]
+                    }
+                });
 
-                should.push({ bool: { 'must': must_dummy } });
-            }
-
-            //console.log("Element: " + element + " | IsDummy: " + isDummy);
-
-        });
-        //#endregion
-
-        must.push(
-            {
-                bool: {
-                    should
-                }
-            }
-        );
-
-        must_not.push({
-            bool: {
-                must: [
-                    { terms: { "zonasAgotadas": [parametrosEntrada.codigoZona] } },
-                ]
+                should.push({
+                    bool: {
+                        'must': must_dummy
+                    }
+                });
             }
         });
+    }
 
-        //#region agregation precio
-        //- aggregations
+    function queryAggregation(preciosRedis) {
         let ranges = [];
+
         if (preciosRedis.length > 0) {
             for (const i in preciosRedis) {
                 const element = preciosRedis[i];
@@ -189,6 +202,67 @@ var elasticSearch = (function () {
                 ranges.push(JSON.parse(inRange));
             }
         }
+
+        return {
+            categoriasFiltro: {
+                terms: {
+                    "field": "categorias.keyword"
+                }
+            },
+            marcasFiltro: {
+                terms: {
+                    "field": "marcas.keyword"
+                }
+            },
+            preciosFiltro: {
+                range: {
+                    "field": "precio",
+                    ranges
+                }
+
+            }
+        }
+    }
+
+    function QueryBuscador(parametrosEntrada, preciosRedis) {
+
+        let personalizaciones = config.constantes.Personalizacion,
+            should = [],
+            must = queryParametrosEnDuro();
+
+        let textConverted = utils.decodeText(parametrosEntrada.textoBusqueda);
+
+        //#region filtros
+        let filtroPush = queryFiltros(parametros);
+        if (filtroPush.length > 0) {
+            must.push({
+                bool: {
+                    'must': filtroPush
+                }
+            });
+        }
+        //#endregion
+
+        //#region condiciones consultora
+        personalizaciones = filtroShowroom.filtrar(parametrosEntrada, personalizaciones, should);
+        personalizaciones = filtroOfertaParaTi.filtrar(parametrosEntrada, personalizaciones, should);
+        personalizaciones = filtroOfertaDelDia.filtrar(parametrosEntrada, personalizaciones, should);
+        personalizaciones = filtroLanzamiento.filtrar(parametrosEntrada, personalizaciones);
+        personalizaciones = filtroGuiaNegocioDigital.filtrar(parametrosEntrada, personalizaciones);
+        //#endregion
+
+        //#region personalizaciones 
+        queryPersonalizaciones(parametrosEntrada, should);
+        //#endregion
+
+        must.push({
+            bool: {
+                should
+            }
+        });
+
+        //#region aggregation
+        let aggregation = queryAggregation(preciosRedis);
         //#endregion
 
         return {
@@ -197,28 +271,28 @@ var elasticSearch = (function () {
             sort: parametrosEntrada.sortValue,
             query: {
                 bool: {
-                    must: [
-                        {
-                            multi_match: {
-                                query: textConverted,
-                                type: 'cross_fields',
-                                fields: [
-                                    "textoBusqueda.ngram",
-                                    "cuv",
-                                    "categorias.ngram",
-                                    "grupoArticulos.ngram",
-                                    "lineas.ngram",
-                                    "marcas.ngram"
-                                ],
-                                "operator": "and"
-                            }
+                    must: [{
+                        multi_match: {
+                            query: textConverted,
+                            type: 'cross_fields',
+                            fields: [
+                                "textoBusqueda.ngram",
+                                "cuv",
+                                "categorias.ngram",
+                                "grupoArticulos.ngram",
+                                "lineas.ngram",
+                                "marcas.ngram"
+                            ],
+                            "operator": "and"
                         }
-                    ],
+                    }],
                     must_not: {
                         bool: {
-                            must: [
-                                { terms: { "zonasAgotadas": [parametrosEntrada.codigoZona] } },
-                            ]
+                            must: [{
+                                terms: {
+                                    "zonasAgotadas": [parametrosEntrada.codigoZona]
+                                }
+                            }]
                         }
                     },
                     filter: [
@@ -226,25 +300,7 @@ var elasticSearch = (function () {
                     ]
                 }
             },
-            aggregations: {
-                categoriasFiltro: {
-                    terms: {
-                        "field": "categorias.keyword"
-                    }
-                },
-                marcasFiltro: {
-                    terms: {
-                        "field": "marcas.keyword"
-                    }
-                },
-                preciosFiltro: {
-                    range: {
-                        "field": "precio",
-                        ranges
-                    }
-
-                }
-            }
+            'aggregations': aggregation
         };
     }
 
@@ -253,9 +309,11 @@ var elasticSearch = (function () {
             size: parametrosEntrada.cantidadProductos,
             query: {
                 bool: {
-                    must: [
-                        { term: { "codigoConsultora": parametrosEntrada.codigoConsultora } }
-                    ]
+                    must: [{
+                        term: {
+                            "codigoConsultora": parametrosEntrada.codigoConsultora
+                        }
+                    }]
                 }
             },
             aggs: {
