@@ -49,8 +49,9 @@ var elasticSearch = (function () {
     /**
      * Devuelve un json con los datos de los filtros
      * @param {array} parametros - Parametros de entrada que recibe la aplicación
+     * @param {json} retorno - Retorna json con la query de los filtros
      */
-    function queryFiltros(parametros) {
+    function queryFiltros(parametros, retorno) {
         let must = [], // Contenedor de los resultados (Y)
             categorias = [],
             marcas = [],
@@ -122,12 +123,17 @@ var elasticSearch = (function () {
                 }
             });
         }
-        return must;
+
+        retorno.push({
+            bool: {
+                'must': must
+            }
+        });
     }
 
     /**
      * Funcion para validar las personalizaciones
-     * @param {array} parametros - Parametros que recibe la consultora
+     * @param {array} parametros - Parametros que recibe el API
      * @param {json} should - ByRef de la consulta, esto realizará un push
      */
     function queryPersonalizaciones(parametros, should) {
@@ -185,6 +191,30 @@ var elasticSearch = (function () {
                         'must': must_dummy
                     }
                 });
+            }
+        });
+    }
+
+    /**
+     * Arma el query que contiene la validación de la consultora Dummy y las condiciones de ODD, OPT, SR, GN y LAN
+     * @param {array} parametros - Parametros que recibe el API
+     * @param {array} personalizaciones - Personalizaiones que tiene la consultora
+     * @param {*} retorno - JSON con las condiciones y consultora Dummy
+     */
+    function queryPersonalizacionesYCondiciones(parametros, personalizaciones, retorno) {
+        let should = [];
+
+        personalizaciones = filtroShowroom.filtrar(parametros, personalizaciones, should);
+        personalizaciones = filtroOfertaParaTi.filtrar(parametros, personalizaciones, should);
+        personalizaciones = filtroOfertaDelDia.filtrar(parametros, personalizaciones, should);
+        personalizaciones = filtroLanzamiento.filtrar(parametros, personalizaciones);
+        personalizaciones = filtroGuiaNegocioDigital.filtrar(parametros, personalizaciones);
+
+        queryPersonalizaciones(parametros, should);
+
+        retorno.push({
+            bool: {
+                should
             }
         });
     }
@@ -251,46 +281,37 @@ var elasticSearch = (function () {
         }];
     }
 
-    function QueryBuscador(parametrosEntrada, preciosRedis) {
+    /**
+     * Retorna json con lo que se quiere negar en la consulta
+     */
+    function queryNegaciones(){
+        return [{
+            bool: {
+                must: [{
+                    terms: {
+                        "zonasAgotadas": [parametrosEntrada.codigoZona]
+                    }
+                }]
+            }
+        }];
+    }
+
+    /**
+     * Devuelve query que se ejecutará en ES
+     * @param {array} parametrosEntrada - Parametros de entrada que recibe el API
+     * @param {json} preciosRedis - Datos obtenidos desde REDIS
+     */
+    function queryBuscador(parametrosEntrada, preciosRedis) {
 
         let personalizaciones = config.constantes.Personalizacion,
-            should = [],
             must = queryParametrosEnDuro();
 
+        queryFiltros(parametros, must);
+        queryPersonalizacionesYCondiciones(parametrosEntrada, personalizaciones, must);
 
-        //#region filtros
-        let filtroPush = queryFiltros(parametros);
-        if (filtroPush.length > 0) {
-            must.push({
-                bool: {
-                    'must': filtroPush
-                }
-            });
-        }
-        //#endregion
-
-        //#region condiciones consultora
-        personalizaciones = filtroShowroom.filtrar(parametrosEntrada, personalizaciones, should);
-        personalizaciones = filtroOfertaParaTi.filtrar(parametrosEntrada, personalizaciones, should);
-        personalizaciones = filtroOfertaDelDia.filtrar(parametrosEntrada, personalizaciones, should);
-        personalizaciones = filtroLanzamiento.filtrar(parametrosEntrada, personalizaciones);
-        personalizaciones = filtroGuiaNegocioDigital.filtrar(parametrosEntrada, personalizaciones);
-        //#endregion
-
-        //#region personalizaciones 
-        queryPersonalizaciones(parametrosEntrada, should);
-        //#endregion
-
-        must.push({
-            bool: {
-                should
-            }
-        });
-
-        //#region aggregation
         let aggregation = queryAggregation(preciosRedis);
-        //#endregion
         let multi_match = queryMultiMatch(parametrosEntrada.textoBusqueda);
+        let must_not = queryNegaciones();
 
         return {
             from: parametrosEntrada.fromValue,
@@ -299,15 +320,7 @@ var elasticSearch = (function () {
             query: {
                 bool: {
                     'must': multi_match,
-                    must_not: {
-                        bool: {
-                            must: [{
-                                terms: {
-                                    "zonasAgotadas": [parametrosEntrada.codigoZona]
-                                }
-                            }]
-                        }
-                    },
+                    'must_not': must_not,
                     filter: [
                         must
                     ]
@@ -317,7 +330,7 @@ var elasticSearch = (function () {
         };
     }
 
-    function QueryPersonalizacion(parametrosEntrada) {
+    function queryPersonalizacion(parametrosEntrada) {
         return {
             size: parametrosEntrada.cantidadProductos,
             query: {
@@ -340,8 +353,8 @@ var elasticSearch = (function () {
     }
 
     return {
-        QueryBuscador: QueryBuscador,
-        QueryPersonalizacion: QueryPersonalizacion,
+        queryBuscador: queryBuscador,
+        queryPersonalizacion: queryPersonalizacion,
         ejecutarElasticSearch: ejecutarElasticSearch
     };
 

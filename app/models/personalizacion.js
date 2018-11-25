@@ -3,7 +3,7 @@ const elasticSearchUtils = require('../common/elasticSearch');
 var personalizacion = (function(){
 
     function obtener(parametrosEntrada){
-        let body = elasticSearchUtils.QueryPersonalizacion(parametrosEntrada);
+        let body = elasticSearchUtils.queryPersonalizacion(parametrosEntrada);
         return elasticSearchUtils.ejecutarElasticSearch(parametrosEntrada, body)
     }
 

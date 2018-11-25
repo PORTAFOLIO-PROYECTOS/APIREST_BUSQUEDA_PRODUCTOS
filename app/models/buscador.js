@@ -4,7 +4,7 @@ var buscador = (function() {
 
     async function buscar(parametrosEntrada, rangosRedis) {
 
-        let body = elasticSearchUtils.QueryBuscador(parametrosEntrada, rangosRedis);
+        let body = elasticSearchUtils.queryBuscador(parametrosEntrada, rangosRedis);
 
         console.info("Query ES:\n" + JSON.stringify(body));
 
