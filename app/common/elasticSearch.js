@@ -1,10 +1,10 @@
 const config = require('../../config'),
     utils = require('../common/utils'),
-    filtroShowroom = require('../models/filtros/filtroShowRoom'),
-    filtroLanzamiento = require('../models/filtros/filtroLanzamiento'),
-    filtroOfertaParaTi = require('../models/filtros/filtroOfertaParaTi'),
-    filtroOfertaDelDia = require('../models/filtros/filtroOfertaDelDia'),
-    filtroGuiaNegocioDigital = require('../models/filtros/filtroGuiaNegocioDigital'),
+    filtroShowroom = require('../business/filtroShowRoom'),
+    filtroLanzamiento = require('../business/filtroLanzamiento'),
+    filtroOfertaParaTi = require('../business/filtroOfertaParaTi'),
+    filtroOfertaDelDia = require('../business/filtroOfertaDelDia'),
+    filtroGuiaNegocioDigital = require('../business/filtroGuiaNegocioDigital'),
     client = require('elasticsearch').Client({
         host: `${config.elasticsearch.host}`,
         log: `${config.elasticsearch.log}`
