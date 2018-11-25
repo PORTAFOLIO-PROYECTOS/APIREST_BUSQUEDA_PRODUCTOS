@@ -1,6 +1,6 @@
 const elasticSearchUtils = require('../common/elasticSearch');
 
-var personalizacion = (function(){
+var personalizacionRepository = (function(){
 
     function obtener(parametrosEntrada){
         let body = elasticSearchUtils.queryPersonalizacion(parametrosEntrada);
@@ -12,4 +12,4 @@ var personalizacion = (function(){
     }
 
 })();
-module.exports = personalizacion;
+module.exports = personalizacionRepository;

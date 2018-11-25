@@ -1,8 +1,8 @@
-const parametrosEntrada = require('../models/parametros/buscador/parametrosEntrada'),
-    parametrosSalida = require('../models/parametros/buscador/parametrosSalida'),
-    parametrosFiltro = require('../models/parametros/buscador/parametrosFiltro'),
-    buscadorModel = require('../models/buscador'),
-    stockModel = require('../models/stock'),
+const parametrosEntrada = require('../models/buscador/parametrosEntrada'),
+    parametrosSalida = require('../models/buscador/parametrosSalida'),
+    parametrosFiltro = require('../models/buscador/parametrosFiltro'),
+    buscadorRepository = require('../repository/buscadorRepository'),
+    stockRepository = require('../repository/stockRepository'),
     utils = require('../common/utils'),
     config = require('../../config'),
     redis = require('../common/redis'),
@@ -130,7 +130,7 @@ async function ejecutar(parametros) {
     //- Paso 5: Validación de stock PROL
     if (total > 0 && config.flags.validacionStock && parametros.diaFacturacion >= 0) {
         //- Paso 5.1: Consulta APIPROL
-        let dataStock = await stockModel.Validar(SAPs, parametros.codigoPais);
+        let dataStock = await stockRepository.Validar(SAPs, parametros.codigoPais);
 
         //- Paso 5.2: Validación datos stock
         for (const i in dataStock) {
@@ -152,7 +152,7 @@ async function ejecutar(parametros) {
 
 async function getElasticsearch(parametros, rangosRedis) {
     return new Promise((resolve, reject) => {
-        buscadorModel.buscar(parametros, rangosRedis).then((resp) => {
+        buscadorRepository.buscar(parametros, rangosRedis).then((resp) => {
             resolve(resp);
         }, (err) => {
             console.log('Error: al consultar ES');

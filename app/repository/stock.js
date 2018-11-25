@@ -1,7 +1,7 @@
 const request = require('sync-request');
 const config = require('../../config');
 
-var stock = (function () {
+var stockRepository = (function () {
 
     async function Validar(_saps, _iso) {
         _saps = _saps.join('|');
@@ -23,4 +23,4 @@ var stock = (function () {
 
 })();
 
-module.exports = stock;
+module.exports = stockRepository;

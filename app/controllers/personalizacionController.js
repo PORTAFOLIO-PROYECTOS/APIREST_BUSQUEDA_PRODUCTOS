@@ -1,6 +1,6 @@
-const parametrosEntrada = require('../models/parametros/personalizacion/parametrosEntradaPersonalizacion');
-const parametrosSalida = require('../models/parametros/personalizacion/parametrosSalidaPersonalizacion');
-const personalizacionModel = require('../models/personalizacion');
+const parametrosEntrada = require('../models/personalizacion/parametrosEntradaPersonalizacion');
+const parametrosSalida = require('../models/personalizacion/parametrosSalidaPersonalizacion');
+const personalizacionRepository = require('../repository/personalizacionRepository');
 
 exports.obtener = function(req, res, next){
     let parametros = new parametrosEntrada(
@@ -12,7 +12,7 @@ exports.obtener = function(req, res, next){
     console.info('Parametros API Personalizacion:\n' + JSON.stringify(parametros));
 
     var arreglo = [];
-    var resultado = personalizacionModel.obtener(parametros);
+    var resultado = personalizacionRepository.obtener(parametros);
 
     resultado.then(function(resp){
         const resultados = resp.aggregations.unique_personalizacion.buckets;

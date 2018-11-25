@@ -1,6 +1,6 @@
 const elasticSearchUtils = require('../common/elasticSearch');
 
-var buscador = (function() {
+var buscadorRepository = (function() {
 
     async function buscar(parametrosEntrada, rangosRedis) {
 
@@ -17,4 +17,4 @@ var buscador = (function() {
 
 })();
 
-module.exports = buscador;
+module.exports = buscadorRepository;
