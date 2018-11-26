@@ -1,3 +1,5 @@
+"use strict";
+
 const buscadorRepository = require("../repository/buscadorRepository"),
     stockRepository = require("../repository/stockRepository"),
     parametrosSalida = require("../models/buscador/parametrosSalida"),
@@ -7,14 +9,13 @@ const buscadorRepository = require("../repository/buscadorRepository"),
     redis = require("../common/redis"),
     sql = require("../common/sql");
 
-var baseController = (function () {
-
+class baseController {
     /**
      * retornará en formato JSON los datos de Redis o SQL
      * @param {string} key - Key del chache de redis formado por ambiente-nameAPP-isopais-[nombre]
      * @param {string} isoPais - ISO del país
      */
-    async function obtenerDatosRedis(key, isoPais) {
+    async obtenerDatosRedis(key, isoPais) {
         try {
             let dataRedis = await redis.getRedis(key);
             if (dataRedis == null || dataRedis == "") {
@@ -35,7 +36,7 @@ var baseController = (function () {
      * @param {array} parametros - Parametros que recibe el API
      * @param {array} rangosRedis - Datos de redis
      */
-    async function ejecutarElasticsearch(parametros, dataRedis) {
+    async ejecutarElasticsearch(parametros, dataRedis) {
         try {
             return new Promise((resolve, reject) => {
                 buscadorRepository.buscar(parametros, dataRedis).then((resp) => {
@@ -58,7 +59,7 @@ var baseController = (function () {
      * @param {int} diaFacturacion - Día de facturación 
      * @param {array} productos - Lista de productos a validar
      */
-    async function validarStock(SAPs, isoPais, diaFacturacion, productos) {
+    async validarStock(SAPs, isoPais, diaFacturacion, productos) {
         try {
             if (config.flags.validacionStock && diaFacturacion >= 0) {
                 console.log('antes de ejecutar stock');
@@ -88,7 +89,7 @@ var baseController = (function () {
      * @param {array} parametros - Parametros que recibe el api
      * @param {array} SAPs - Retorno de codigos SAPS
      */
-    function devuelveJSONProductos(data, parametros, SAPs) {
+    devuelveJSONProductos(data, parametros, SAPs) {
         let productos = [];
 
         for (const key in data.hits.hits) {
@@ -96,22 +97,22 @@ var baseController = (function () {
                 source = element._source,
                 imagen = utils.getUrlImagen(source.imagen, parametros.codigoPais, source.imagenOrigen, parametros.codigoCampania, source.marcaId);
 
-            productos.push({
-                CUV: source.cuv,
-                SAP: source.codigoProducto,
-                Imagen: imagen ? imagen : "no_tiene_imagen.jpg",
-                Descripcion: source.descripcion,
-                Valorizado: source.valorizado ? source.valorizado : 0,
-                Precio: source.precio,
-                MarcaId: source.marcaId,
-                TipoPersonalizacion: source.tipoPersonalizacion,
-                CodigoEstrategia: source.codigoEstrategia ? source.codigoEstrategia : 0,
-                CodigoTipoEstrategia: source.codigoTipoEstrategia ? source.codigoTipoEstrategia : '0',
-                TipoEstrategiaId: source.tipoEstrategiaId ? source.tipoEstrategiaId : 0,
-                LimiteVenta: source.limiteVenta ? source.limiteVenta : 0,
-                Stock: true,
-                EstrategiaID: source.estrategiaId
-            });
+            productos.push(new parametrosSalida(
+                source.cuv,
+                source.codigoProducto,
+                imagen ? imagen : "no_tiene_imagen.jpg",
+                source.descripcion,
+                source.valorizado ? source.valorizado : 0,
+                source.precio,
+                source.marcaId,
+                source.tipoPersonalizacion,
+                source.codigoEstrategia ? source.codigoEstrategia : 0,
+                source.codigoTipoEstrategia ? source.codigoTipoEstrategia : '0',
+                source.tipoEstrategiaId ? source.tipoEstrategiaId : 0,
+                source.limiteVenta ? source.limiteVenta : 0,
+                true,
+                source.estrategiaId
+            ));
 
             if (SAPs.indexOf(source.codigoProducto) < 0 && (source.codigoProducto != undefined || source.codigoProducto != null)) {
                 SAPs.push(source.codigoProducto);
@@ -127,7 +128,7 @@ var baseController = (function () {
      * @param {array} dataRedis - Resultado de la consulta de REDIS
      * @param {array} parametros - Parametro que recibe la consultora
      */
-    function devuelveJSONFiltros(data, dataRedis, parametros) {
+    devuelveJSONFiltros(data, dataRedis, parametros) {
         let preciosRedis = utils.selectInArray(dataRedis, config.constantes.codigoFiltroPrecio),
             marcasRedis = utils.selectInArray(dataRedis, config.constantes.codigoFiltroMarca),
             categoriasRedis = utils.selectInArray(dataRedis, config.constantes.codigoFiltroCategoria),
@@ -185,16 +186,7 @@ var baseController = (function () {
             marcas,
             precios
         }
-
     }
-
-    return {
-        obtenerDatosRedis: obtenerDatosRedis,
-        ejecutarElasticsearch: ejecutarElasticsearch,
-        devuelveJSONProductos: devuelveJSONProductos,
-        devuelveJSONFiltros: devuelveJSONFiltros,
-        validarStock: validarStock
-    }
-})();
+}
 
 module.exports = baseController;

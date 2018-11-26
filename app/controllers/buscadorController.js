@@ -1,7 +1,8 @@
 const parametrosEntrada = require("../models/buscador/parametrosEntrada"),
     utils = require("../common/utils"),
     config = require("../../config"),
-    baseController = require("../controllers/baseController");
+    base = require("../controllers/baseController"),
+    baseController = new base();;
 
 /**
  * Devuel un array en formato json con los resultados de la busqueda
