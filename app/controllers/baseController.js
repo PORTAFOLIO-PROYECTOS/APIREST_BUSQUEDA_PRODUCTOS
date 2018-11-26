@@ -10,6 +10,36 @@ const buscadorRepository = require("../repository/buscadorRepository"),
     sql = require("../common/sql");
 
 class baseController {
+
+    constructor(parametros){
+        this.parametros = parametros
+    }
+
+    /**
+     * Devuelve un array en formato json con los resultados de la busqueda
+     */
+    async ejecutarBusqueda() {
+        let name = `${config.ambiente}_${config.name}_${this.parametros.codigoPais}_FiltrosDelBuscador`,
+            dataRedis = await this.obtenerDatosRedis(name, this.parametros.codigoPais),
+            dataElastic = await this.ejecutarElasticsearch(dataRedis),
+            productos = [],
+            SAPs = [],
+            filtros = [],
+            total = dataElastic.hits.total;
+
+        productos = this.devuelveJSONProductos(dataElastic, SAPs);
+
+        productos = await this.validarStock(SAPs, this.parametros.codigoPais, this.parametros.diaFacturacion, productos);
+
+        filtros = this.devuelveJSONFiltros(dataElastic, dataRedis);
+
+        return {
+            total: total,
+            productos: productos,
+            filtros: filtros
+        }
+    }
+
     /**
      * retornará en formato JSON los datos de Redis o SQL
      * @param {string} key - Key del chache de redis formado por ambiente-nameAPP-isopais-[nombre]
@@ -33,13 +63,12 @@ class baseController {
 
     /**
      * Ejecuta la query de ES
-     * @param {array} parametros - Parametros que recibe el API
      * @param {array} rangosRedis - Datos de redis
      */
-    async ejecutarElasticsearch(parametros, dataRedis) {
+    async ejecutarElasticsearch(dataRedis) {
         try {
             return new Promise((resolve, reject) => {
-                buscadorRepository.buscar(parametros, dataRedis).then((resp) => {
+                buscadorRepository.buscar(this.parametros, dataRedis).then((resp) => {
                     resolve(resp);
                 }, (err) => {
                     console.log('Error: al consultar ES');
@@ -86,16 +115,15 @@ class baseController {
     /**
      * Devuelve array con los productos validados
      * @param {json} data - Resultado de la consulta de ES
-     * @param {array} parametros - Parametros que recibe el api
      * @param {array} SAPs - Retorno de codigos SAPS
      */
-    devuelveJSONProductos(data, parametros, SAPs) {
+    devuelveJSONProductos(data, SAPs) {
         let productos = [];
 
         for (const key in data.hits.hits) {
             const element = data.hits.hits[key],
                 source = element._source,
-                imagen = utils.getUrlImagen(source.imagen, parametros.codigoPais, source.imagenOrigen, parametros.codigoCampania, source.marcaId);
+                imagen = utils.getUrlImagen(source.imagen, this.parametros.codigoPais, source.imagenOrigen, this.parametros.codigoCampania, source.marcaId);
 
             productos.push(new parametrosSalida(
                 source.cuv,
@@ -126,9 +154,8 @@ class baseController {
      * Devuelve en formato JSON todos los filtros, aunque tengan ceros
      * @param {array} data - Resultado de la consulta de ES
      * @param {array} dataRedis - Resultado de la consulta de REDIS
-     * @param {array} parametros - Parametro que recibe la consultora
      */
-    devuelveJSONFiltros(data, dataRedis, parametros) {
+    devuelveJSONFiltros(data, dataRedis) {
         let preciosRedis = utils.selectInArray(dataRedis, config.constantes.codigoFiltroPrecio),
             marcasRedis = utils.selectInArray(dataRedis, config.constantes.codigoFiltroMarca),
             categoriasRedis = utils.selectInArray(dataRedis, config.constantes.codigoFiltroCategoria),
@@ -142,7 +169,7 @@ class baseController {
         for (const i in categoriasRedis) {
             const element = categoriasRedis[i];
             const dataES = categoriasES.find(x => x.key == element.Nombre);
-            const dataEntrada = parametros.filtroCategoria.find(x => x.idFiltro == element.Descripcion);
+            const dataEntrada = this.parametros.filtroCategoria.find(x => x.idFiltro == element.Descripcion);
 
             categorias.push(
                 new parametrosFiltro(
@@ -155,7 +182,7 @@ class baseController {
 
         for (const i in marcasRedis) {
             const element = marcasRedis[i];
-            const dataEntrada = parametros.filtroMarca.find(x => x.idFiltro.toLowerCase() == element.Descripcion.toLowerCase());
+            const dataEntrada = this.parametros.filtroMarca.find(x => x.idFiltro.toLowerCase() == element.Descripcion.toLowerCase());
             const dataES = marcasES.find(x => x.key == element.Nombre);
 
             marcas.push(
@@ -170,7 +197,7 @@ class baseController {
         for (const i in preciosRedis) {
             const element = preciosRedis[i];
             const dataES = preciosES.find(x => x.key == element.Nombre);
-            const dataEntrada = parametros.filtroPrecio.find(x => x.idFiltro == element.Descripcion);
+            const dataEntrada = this.parametros.filtroPrecio.find(x => x.idFiltro == element.Descripcion);
 
             precios.push(
                 new parametrosFiltro(

@@ -1,38 +1,9 @@
 const parametrosEntrada = require("../models/buscador/parametrosEntrada"),
     utils = require("../common/utils"),
-    config = require("../../config"),
-    base = require("../controllers/baseController"),
-    baseController = new base();;
-
-/**
- * Devuel un array en formato json con los resultados de la busqueda
- * @param {array} parametros - Parametros que recibe la consultora
- */
-async function ejecutar(parametros) {
-    let name = `${config.ambiente}_${config.name}_${parametros.codigoPais}_FiltrosDelBuscador`,
-        dataRedis = await baseController.obtenerDatosRedis(name, parametros.codigoPais),
-        dataElastic = await baseController.ejecutarElasticsearch(parametros, dataRedis),
-        productos = [],
-        SAPs = [],
-        filtros = [],
-        total = dataElastic.hits.total;
-
-    productos = baseController.devuelveJSONProductos(dataElastic, parametros, SAPs);
-
-    productos = await baseController.validarStock(SAPs, parametros.codigoPais, parametros.diaFacturacion, productos);
-
-    filtros = baseController.devuelveJSONFiltros(dataElastic, dataRedis, parametros);
-
-    return {
-        total: total,
-        productos: productos,
-        filtros: filtros
-    }
-}
+    base = require("../controllers/baseController");
 
 exports.busqueda = async function (req, res, next) {
-
-    let parametros = new parametrosEntrada(
+    let baseController = new base(new parametrosEntrada(
         req.params.codigoPais,
         req.params.codigocampania,
         req.body.codigoConsultora,
@@ -53,10 +24,10 @@ exports.busqueda = async function (req, res, next) {
         utils.validarFiltro(req.body.filtro.categoria),
         utils.validarFiltro(req.body.filtro.marca),
         utils.validarFiltro(req.body.filtro.precio)
-    );
-    
+    ));
+
     try {
-        let d = await ejecutar(parametros);
+        let d = await baseController.ejecutarBusqueda();
         res.json(d);
         next();
     } catch (error) {
