@@ -6,6 +6,7 @@ const parametrosEntrada = require("../models/buscador/parametrosEntrada"),
 async function ejecutar(parametros) {
     let name = `${config.ambiente}_${config.name}_${parametros.codigoPais}_FiltrosDelBuscador`,
         dataRedis = await baseController.obtenerDatosRedis(name, parametros.codigoPais),
+        preciosRedis = utils.selectInArray(dataRedis, config.constantes.codigoFiltroPrecio),
         dataElastic = await baseController.ejecutarElasticsearch(parametros, preciosRedis),
         productos = [],
         SAPs = [],

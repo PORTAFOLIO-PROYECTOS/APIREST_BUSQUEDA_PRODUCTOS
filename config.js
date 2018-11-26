@@ -12,7 +12,7 @@ const config = {
     },
     elasticsearch: {
         host: "https://vpc-es-sbsearch-qas-u4pht5gehqu3pmsc4x5srachwu.us-east-1.es.amazonaws.com",
-        index: "producto",
+        index: "dev_producto_v1",
         type: "_doc",
         log: ""
     },

@@ -32,9 +32,9 @@ var baseController = (function () {
      * @param {array} parametros - Parametros que recibe el API
      * @param {array} rangosRedis - Datos de redis
      */
-    async function ejecutarElasticsearch(parametros, rangosRedis) {
+    async function ejecutarElasticsearch(parametros, dataRedis) {
         return new Promise((resolve, reject) => {
-            buscadorRepository.buscar(parametros, rangosRedis).then((resp) => {
+            buscadorRepository.buscar(parametros, dataRedis).then((resp) => {
                 resolve(resp);
             }, (err) => {
                 console.log('Error: al consultar ES');
@@ -112,8 +112,9 @@ var baseController = (function () {
      * Devuelve en formato JSON todos los filtros, aunque tengan ceros
      * @param {array} data - Resultado de la consulta de ES
      * @param {array} dataRedis - Resultado de la consulta de REDIS
+     * @param {array} parametros - Parametro que recibe la consultora
      */
-    function devuelveJSONFiltros(data, dataRedis) {
+    function devuelveJSONFiltros(data, dataRedis, parametros) {
         let preciosRedis = utils.selectInArray(dataRedis, config.constantes.codigoFiltroPrecio),
             marcasRedis = utils.selectInArray(dataRedis, config.constantes.codigoFiltroMarca),
             categoriasRedis = utils.selectInArray(dataRedis, config.constantes.codigoFiltroCategoria),
@@ -123,7 +124,6 @@ var baseController = (function () {
             categorias = [],
             marcas = [],
             precios = [];
-
 
         for (const i in categoriasRedis) {
             const element = categoriasRedis[i];

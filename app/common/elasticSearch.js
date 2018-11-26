@@ -32,17 +32,17 @@ var elasticSearch = (function () {
      */
     function queryParametrosEnDuro() {
         return [{
-                term: {
-                    "activo": true
-                }
-            },
-            {
-                range: {
-                    "precio": {
-                        "gt": 0
-                    }
+            term: {
+                "activo": true
+            }
+        },
+        {
+            range: {
+                "precio": {
+                    "gt": 0
                 }
             }
+        }
         ];
     }
 
@@ -134,9 +134,10 @@ var elasticSearch = (function () {
     /**
      * Funcion para validar las personalizaciones
      * @param {array} parametros - Parametros que recibe el API
+    * @param {array} personalizaciones - Array de personalizaciones que tiene la consultora
      * @param {json} should - ByRef de la consulta, esto realizará un push
      */
-    function queryPersonalizaciones(parametros, should) {
+    function queryPersonalizaciones(parametros, personalizaciones, should) {
         let consultoraX = config.constantes.consultoraX,
             consultoraY = config.constantes.consultoraY,
             consultora0 = config.constantes.consultora0;
@@ -210,7 +211,7 @@ var elasticSearch = (function () {
         personalizaciones = filtroLanzamiento.filtrar(parametros, personalizaciones);
         personalizaciones = filtroGuiaNegocioDigital.filtrar(parametros, personalizaciones);
 
-        queryPersonalizaciones(parametros, should);
+        queryPersonalizaciones(parametros, personalizaciones, should);
 
         retorno.push({
             bool: {
@@ -221,11 +222,11 @@ var elasticSearch = (function () {
 
     /**
      * Retorna un json con los aggregation para los filtros
-     * @param {array} preciosRedis - Precios del cache de REDIS
+     * @param {array} dataRedis - Precios del cache de REDIS
      */
-    function queryAggregation(preciosRedis) {
+    function queryAggregation(dataRedis) {
         let ranges = [];
-
+        let preciosRedis = utils.selectInArray(dataRedis, config.constantes.codigoFiltroPrecio);
         if (preciosRedis.length > 0) {
             for (const i in preciosRedis) {
                 const element = preciosRedis[i];
@@ -284,7 +285,7 @@ var elasticSearch = (function () {
     /**
      * Retorna json con lo que se quiere negar en la consulta
      */
-    function queryNegaciones(){
+    function queryNegaciones(parametrosEntrada) {
         return [{
             bool: {
                 must: [{
@@ -299,19 +300,19 @@ var elasticSearch = (function () {
     /**
      * Devuelve query que se ejecutará en ES
      * @param {array} parametrosEntrada - Parametros de entrada que recibe el API
-     * @param {json} preciosRedis - Datos obtenidos desde REDIS
+     * @param {json} dataRedis - Datos obtenidos desde REDIS
      */
-    function queryBuscador(parametrosEntrada, preciosRedis) {
+    function queryBuscador(parametrosEntrada, dataRedis) {
 
         let personalizaciones = config.constantes.Personalizacion,
             must = queryParametrosEnDuro();
 
-        queryFiltros(parametros, must);
+        queryFiltros(parametrosEntrada, must);
         queryPersonalizacionesYCondiciones(parametrosEntrada, personalizaciones, must);
 
-        let aggregation = queryAggregation(preciosRedis);
+        let aggregation = queryAggregation(dataRedis);
         let multi_match = queryMultiMatch(parametrosEntrada.textoBusqueda);
-        let must_not = queryNegaciones();
+        let must_not = queryNegaciones(parametrosEntrada);
 
         return {
             from: parametrosEntrada.fromValue,
@@ -321,9 +322,7 @@ var elasticSearch = (function () {
                 bool: {
                     'must': multi_match,
                     'must_not': must_not,
-                    filter: [
-                        must
-                    ]
+                    filter: must
                 }
             },
             'aggregations': aggregation
