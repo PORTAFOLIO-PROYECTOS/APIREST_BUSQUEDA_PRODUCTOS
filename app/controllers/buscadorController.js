@@ -1,12 +1,12 @@
-const parametrosEntrada = require('../models/buscador/parametrosEntrada'),
-    parametrosSalida = require('../models/buscador/parametrosSalida'),
-    parametrosFiltro = require('../models/buscador/parametrosFiltro'),
-    buscadorRepository = require('../repository/buscadorRepository'),
-    stockRepository = require('../repository/stockRepository'),
-    utils = require('../common/utils'),
-    config = require('../../config'),
-    redis = require('../common/redis'),
-    sql = require('../common/sql');
+const parametrosEntrada = require("../models/buscador/parametrosEntrada"),
+    parametrosSalida = require("../models/buscador/parametrosSalida"),
+    parametrosFiltro = require("../models/buscador/parametrosFiltro"),
+    buscadorRepository = require("../repository/buscadorRepository"),
+    stockRepository = require("../repository/stockRepository"),
+    utils = require("../common/utils"),
+    config = require("../../config"),
+    redis = require("../common/redis"),
+    sql = require("../common/sql");
 
 async function ejecutar(parametros) {
     //- Paso 1: Consultar Redis para obtener los filtros
@@ -16,7 +16,7 @@ async function ejecutar(parametros) {
     let name = `${config.ambiente}_${config.name}_${parametros.codigoPais}_FiltrosDelBuscador`;
     let dataRedis = await redis.getRedis(name);
     //- Paso 2: Validar si existe data en redis
-    if (dataRedis == null || dataRedis == '') {
+    if (dataRedis == null || dataRedis == "") {
 
         //- Paso 2.1: Select a sql
         let resultSql = JSON.stringify(await sql.filtrosData(parametros.codigoPais));
