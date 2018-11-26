@@ -1,11 +1,11 @@
 const parametrosEntrada = require("../models/buscador/parametrosEntrada"),
     parametrosSalida = require("../models/buscador/parametrosSalida"),
     parametrosFiltro = require("../models/buscador/parametrosFiltro"),
-    buscadorRepository = require("../repository/buscadorRepository"),
+    
     stockRepository = require("../repository/stockRepository"),
     utils = require("../common/utils"),
-    config = require("../../config")
-    baseController = require("baseController");
+    config = require("../../config"),
+    baseController = require("../controllers/baseController");
 
 async function ejecutar(parametros) {
     //- Paso 1: Consultar Redis para obtener los filtros
@@ -13,64 +13,19 @@ async function ejecutar(parametros) {
     let marcas = [];
     let precios = [];
     let name = `${config.ambiente}_${config.name}_${parametros.codigoPais}_FiltrosDelBuscador`;
-    let dataRedis = await redis.getRedis(name);
-    //- Paso 2: Validar si existe data en redis
-    if (dataRedis == null || dataRedis == "") {
-
-        //- Paso 2.1: Select a sql
-        let resultSql = JSON.stringify(await sql.filtrosData(parametros.codigoPais));
-
-        //- Paso 2.2: insertando en Redis
-        let setRedis = await redis.setRedis(name, resultSql);
-        if (!setRedis) return false;
-        dataRedis = resultSql;
-    }
-
-    dataRedis = baseController.o
-
+    let dataRedis = await baseController.obtenerDatosRedis(name, parametros.codigoPais);
     let preciosRedis = utils.selectInArray(dataRedis, config.constantes.codigoFiltroPrecio);
     let marcasRedis = utils.selectInArray(dataRedis, config.constantes.codigoFiltroMarca);
     let categoriasRedis = utils.selectInArray(dataRedis, config.constantes.codigoFiltroCategoria);
+    let dataElastic = await baseController.ejecutarElasticsearch(parametros, preciosRedis);
 
-    //- Paso 3: consultando Elastic
-    let dataElastic = await getElasticsearch(parametros, preciosRedis);
-
-    //- Paso 4: validación de resultados
     let productos = [],
         SAPs = [],
         filtros = [],
         total = dataElastic.hits.total;
 
-    //- Paso 4.1: datos => hits
-    for (const key in dataElastic.hits.hits) {
-        const element = dataElastic.hits.hits[key],
-            source = element._source,
-            imagen = utils.getUrlImagen(source.imagen, parametros.codigoPais, source.imagenOrigen, parametros.codigoCampania, source.marcaId);
+    productos = baseController.devuelveJSONProductos(dataElastic, parametros, SAPs);
 
-        productos.push(
-            new parametrosSalida(
-                source.cuv,
-                source.codigoProducto,
-                imagen ? imagen : "no_tiene_imagen.jpg",
-                source.descripcion,
-                source.valorizado ? source.valorizado : 0,
-                source.precio,
-                source.marcaId,
-                source.tipoPersonalizacion,
-                source.codigoEstrategia ? source.codigoEstrategia : 0,
-                source.codigoTipoEstrategia ? source.codigoTipoEstrategia : '0',
-                source.tipoEstrategiaId ? source.tipoEstrategiaId : 0,
-                source.limiteVenta ? source.limiteVenta : 0,
-                true,
-                source.estrategiaId
-            ));
-
-        if (SAPs.indexOf(source.codigoProducto) < 0 && (source.codigoProducto != undefined || source.codigoProducto != null)) {
-            SAPs.push(source.codigoProducto);
-        }
-    }
-
-    //- Paso 4.2: datos => aggregations categoriasFiltro
     const categoriasES = dataElastic.aggregations.categoriasFiltro.buckets;
 
     for (const i in categoriasRedis) {
@@ -149,16 +104,7 @@ async function ejecutar(parametros) {
     }
 }
 
-async function getElasticsearch(parametros, rangosRedis) {
-    return new Promise((resolve, reject) => {
-        buscadorRepository.buscar(parametros, rangosRedis).then((resp) => {
-            resolve(resp);
-        }, (err) => {
-            console.log('Error: al consultar ES');
-            reject(err);
-        });
-    });
-}
+
 
 function validarFiltro(val) {
     let array = [];
