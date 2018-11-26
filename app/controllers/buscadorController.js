@@ -4,9 +4,8 @@ const parametrosEntrada = require("../models/buscador/parametrosEntrada"),
     buscadorRepository = require("../repository/buscadorRepository"),
     stockRepository = require("../repository/stockRepository"),
     utils = require("../common/utils"),
-    config = require("../../config"),
-    redis = require("../common/redis"),
-    sql = require("../common/sql");
+    config = require("../../config")
+    baseController = require("baseController");
 
 async function ejecutar(parametros) {
     //- Paso 1: Consultar Redis para obtener los filtros
@@ -27,7 +26,7 @@ async function ejecutar(parametros) {
         dataRedis = resultSql;
     }
 
-    dataRedis = JSON.parse(dataRedis);
+    dataRedis = baseController.o
 
     let preciosRedis = utils.selectInArray(dataRedis, config.constantes.codigoFiltroPrecio);
     let marcasRedis = utils.selectInArray(dataRedis, config.constantes.codigoFiltroMarca);
