@@ -80,6 +80,10 @@ var baseController = (function () {
         });
     }
 
+    function devuelveJSONFiltros(data, filtros){
+        
+    }
+
     return {
         obtenerDatosRedis: obtenerDatosRedis,
         ejecutarElasticsearch: ejecutarElasticsearch,
