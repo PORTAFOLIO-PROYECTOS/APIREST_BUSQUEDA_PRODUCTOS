@@ -1,14 +1,13 @@
-const parametrosEntrada = require("../models/buscador/parametrosEntrada"),    
-    stockRepository = require("../repository/stockRepository"),
+const parametrosEntrada = require("../models/buscador/parametrosEntrada"),
+    utils = require("../common/utils"),
     config = require("../../config"),
     baseController = require("../controllers/baseController");
 
 async function ejecutar(parametros) {
-    
-    let name = `${config.ambiente}_${config.name}_${parametros.codigoPais}_FiltrosDelBuscador`;
-    let dataRedis = await baseController.obtenerDatosRedis(name, parametros.codigoPais);
-    let dataElastic = await baseController.ejecutarElasticsearch(parametros, preciosRedis);
-    let productos = [],
+    let name = `${config.ambiente}_${config.name}_${parametros.codigoPais}_FiltrosDelBuscador`,
+        dataRedis = await baseController.obtenerDatosRedis(name, parametros.codigoPais),
+        dataElastic = await baseController.ejecutarElasticsearch(parametros, preciosRedis),
+        productos = [],
         SAPs = [],
         filtros = [],
         total = dataElastic.hits.total;
@@ -22,15 +21,6 @@ async function ejecutar(parametros) {
         productos: productos,
         filtros: filtros
     }
-}
-
-function validarFiltro(val) {
-    let array = [];
-    if (val == null) return array;
-    if (val.length > 0) {
-        if (val.indexOf(null) >= 0) return array;
-    }
-    return val;
 }
 
 exports.busqueda = async function (req, res, next) {
@@ -53,9 +43,9 @@ exports.busqueda = async function (req, res, next) {
         req.body.paginacion.numeroPagina,
         req.body.orden.campo,
         req.body.orden.tipo,
-        validarFiltro(req.body.filtro.categoria),
-        validarFiltro(req.body.filtro.marca),
-        validarFiltro(req.body.filtro.precio)
+        utils.validarFiltro(req.body.filtro.categoria),
+        utils.validarFiltro(req.body.filtro.marca),
+        utils.validarFiltro(req.body.filtro.precio)
     );
 
     try {

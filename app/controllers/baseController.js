@@ -1,4 +1,5 @@
 const buscadorRepository = require("../repository/buscadorRepository"),
+    stockRepository = require("../repository/stockRepository"),
     parametrosSalida = require("../models/buscador/parametrosSalida"),
     parametrosFiltro = require("../models/buscador/parametrosFiltro"),
     utils = require("../common/utils"),
@@ -25,7 +26,7 @@ var baseController = (function () {
         }
         return JSON.parse(dataRedis);
     }
-    
+
     /**
      * Ejecuta la query de ES
      * @param {array} parametros - Parametros que recibe el API
@@ -49,11 +50,11 @@ var baseController = (function () {
      * @param {int} diaFacturacion - Día de facturación 
      * @param {array} productos - Lista de productos a validar
      */
-    async function validarStock(SAPs, isoPais, diaFacturacion, productos){
+    async function validarStock(SAPs, isoPais, diaFacturacion, productos) {
         if (config.flags.validacionStock && diaFacturacion >= 0) {
-            
+
             let dataStock = await stockRepository.Validar(SAPs, isoPais);
-    
+
             //- Paso 5.2: Validación datos stock
             for (const i in dataStock) {
                 for (const j in productos) {
@@ -66,7 +67,7 @@ var baseController = (function () {
         }
         return productos;
     }
-    
+
     /**
      * Devuelve array con los productos validados
      * @param {json} data - Resultado de la consulta de ES
