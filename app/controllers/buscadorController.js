@@ -3,19 +3,24 @@ const parametrosEntrada = require("../models/buscador/parametrosEntrada"),
     config = require("../../config"),
     baseController = require("../controllers/baseController");
 
+/**
+ * Devuel un array en formato json con los resultados de la busqueda
+ * @param {array} parametros - Parametros que recibe la consultora
+ */
 async function ejecutar(parametros) {
     let name = `${config.ambiente}_${config.name}_${parametros.codigoPais}_FiltrosDelBuscador`,
         dataRedis = await baseController.obtenerDatosRedis(name, parametros.codigoPais),
-        preciosRedis = utils.selectInArray(dataRedis, config.constantes.codigoFiltroPrecio),
-        dataElastic = await baseController.ejecutarElasticsearch(parametros, preciosRedis),
+        dataElastic = await baseController.ejecutarElasticsearch(parametros, dataRedis),
         productos = [],
         SAPs = [],
         filtros = [],
         total = dataElastic.hits.total;
 
     productos = baseController.devuelveJSONProductos(dataElastic, parametros, SAPs);
-    productos = baseController.validarStock(SAPs, parametros.codigoPais, parametros.diaFacturacion, productos);
-    filtros = baseController.devuelveJSONFiltros(dataElastic, dataRedis);
+
+    productos = await baseController.validarStock(SAPs, parametros.codigoPais, parametros.diaFacturacion, productos);
+
+    filtros = baseController.devuelveJSONFiltros(dataElastic, dataRedis, parametros);
 
     return {
         total: total,
@@ -48,7 +53,7 @@ exports.busqueda = async function (req, res, next) {
         utils.validarFiltro(req.body.filtro.marca),
         utils.validarFiltro(req.body.filtro.precio)
     );
-
+    
     try {
         let d = await ejecutar(parametros);
         res.json(d);

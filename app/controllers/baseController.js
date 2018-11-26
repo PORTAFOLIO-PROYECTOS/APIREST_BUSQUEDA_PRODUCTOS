@@ -15,16 +15,19 @@ var baseController = (function () {
      * @param {string} isoPais - ISO del país
      */
     async function obtenerDatosRedis(key, isoPais) {
-        let dataRedis = await redis.getRedis(key);
-        if (dataRedis == null || dataRedis == "") {
-            //- Consulta en SQLServer
-            let resultSql = JSON.stringify(await sql.filtrosData(isoPais));
-            //- Inserción de la consulta en REDIS
-            let setRedis = await redis.setRedis(name, resultSql);
-            if (!setRedis) return false;
-            dataRedis = resultSql;
+        try {
+            let dataRedis = await redis.getRedis(key);
+            if (dataRedis == null || dataRedis == "") {
+                let resultSql = JSON.stringify(await sql.filtrosData(isoPais));//- Consulta en SQLServer
+                let setRedis = await redis.setRedis(name, resultSql);//- Inserción de la consulta en REDIS
+                if (!setRedis) return false;
+                dataRedis = resultSql;
+            }
+            return JSON.parse(dataRedis);
+        } catch (error) {
+            console.log("error en obtenerDatosRedis", error);
+            return [];
         }
-        return JSON.parse(dataRedis);
     }
 
     /**
@@ -33,14 +36,19 @@ var baseController = (function () {
      * @param {array} rangosRedis - Datos de redis
      */
     async function ejecutarElasticsearch(parametros, dataRedis) {
-        return new Promise((resolve, reject) => {
-            buscadorRepository.buscar(parametros, dataRedis).then((resp) => {
-                resolve(resp);
-            }, (err) => {
-                console.log('Error: al consultar ES');
-                reject(err);
+        try {
+            return new Promise((resolve, reject) => {
+                buscadorRepository.buscar(parametros, dataRedis).then((resp) => {
+                    resolve(resp);
+                }, (err) => {
+                    console.log('Error: al consultar ES');
+                    reject(err);
+                });
             });
-        });
+        } catch (error) {
+            console.log("Error en ejecutarElasticsearch", error);
+            return [];
+        }
     }
 
     /**
@@ -51,21 +59,27 @@ var baseController = (function () {
      * @param {array} productos - Lista de productos a validar
      */
     async function validarStock(SAPs, isoPais, diaFacturacion, productos) {
-        if (config.flags.validacionStock && diaFacturacion >= 0) {
-
-            let dataStock = await stockRepository.Validar(SAPs, isoPais);
-
-            //- Paso 5.2: Validación datos stock
-            for (const i in dataStock) {
-                for (const j in productos) {
-                    if (dataStock[i].codsap == productos[j].SAP) {
-                        productos[j].Stock = dataStock[i].estado == 1 ? true : false;
-                        break;
+        try {
+            if (config.flags.validacionStock && diaFacturacion >= 0) {
+                console.log('antes de ejecutar stock');
+                let dataStock = await stockRepository.Validar(SAPs, isoPais);
+                console.log('despues de ejecutar stock', dataStock);
+                //- Paso 5.2: Validación datos stock
+                for (const i in dataStock) {
+                    for (const j in productos) {
+                        if (dataStock[i].codsap == productos[j].SAP) {
+                            productos[j].Stock = dataStock[i].estado == 1 ? true : false;
+                            break;
+                        }
                     }
                 }
             }
+
+            return productos;
+        } catch (error) {
+            console.log("Error en validarStock", productos);
+            return [];
         }
-        return productos;
     }
 
     /**
@@ -82,23 +96,22 @@ var baseController = (function () {
                 source = element._source,
                 imagen = utils.getUrlImagen(source.imagen, parametros.codigoPais, source.imagenOrigen, parametros.codigoCampania, source.marcaId);
 
-            productos.push(
-                new parametrosSalida(
-                    source.cuv,
-                    source.codigoProducto,
-                    imagen ? imagen : "no_tiene_imagen.jpg",
-                    source.descripcion,
-                    source.valorizado ? source.valorizado : 0,
-                    source.precio,
-                    source.marcaId,
-                    source.tipoPersonalizacion,
-                    source.codigoEstrategia ? source.codigoEstrategia : 0,
-                    source.codigoTipoEstrategia ? source.codigoTipoEstrategia : '0',
-                    source.tipoEstrategiaId ? source.tipoEstrategiaId : 0,
-                    source.limiteVenta ? source.limiteVenta : 0,
-                    true,
-                    source.estrategiaId
-                ));
+            productos.push({
+                CUV: source.cuv,
+                SAP: source.codigoProducto,
+                Imagen: imagen ? imagen : "no_tiene_imagen.jpg",
+                Descripcion: source.descripcion,
+                Valorizado: source.valorizado ? source.valorizado : 0,
+                Precio: source.precio,
+                MarcaId: source.marcaId,
+                TipoPersonalizacion: source.tipoPersonalizacion,
+                CodigoEstrategia: source.codigoEstrategia ? source.codigoEstrategia : 0,
+                CodigoTipoEstrategia: source.codigoTipoEstrategia ? source.codigoTipoEstrategia : '0',
+                TipoEstrategiaId: source.tipoEstrategiaId ? source.tipoEstrategiaId : 0,
+                LimiteVenta: source.limiteVenta ? source.limiteVenta : 0,
+                Stock: true,
+                EstrategiaID: source.estrategiaId
+            });
 
             if (SAPs.indexOf(source.codigoProducto) < 0 && (source.codigoProducto != undefined || source.codigoProducto != null)) {
                 SAPs.push(source.codigoProducto);
@@ -129,6 +142,7 @@ var baseController = (function () {
             const element = categoriasRedis[i];
             const dataES = categoriasES.find(x => x.key == element.Nombre);
             const dataEntrada = parametros.filtroCategoria.find(x => x.idFiltro == element.Descripcion);
+
             categorias.push(
                 new parametrosFiltro(
                     element.Descripcion,
@@ -156,6 +170,7 @@ var baseController = (function () {
             const element = preciosRedis[i];
             const dataES = preciosES.find(x => x.key == element.Nombre);
             const dataEntrada = parametros.filtroPrecio.find(x => x.idFiltro == element.Descripcion);
+
             precios.push(
                 new parametrosFiltro(
                     element.Descripcion,
