@@ -5,9 +5,7 @@
     "main": "app.js",
     "scripts": {
         "start": "nodemon app.js",
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "lint:report": "eslint app -f html -o reports/lint.html",
-        "prestart": "npm run lint:report"
+        "test": "echo \"Error: no test specified\" && exit 1"
     },
     "author": "#ArquitecturaTD",
     "license": "ISC",

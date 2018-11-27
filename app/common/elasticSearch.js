@@ -230,10 +230,10 @@ var elasticSearch = (function () {
         if (preciosRedis.length > 0) {
             for (const i in preciosRedis) {
                 const element = preciosRedis[i];
-                let inRange = "{'key':'"+ element.Nombre + "'";
-                if (element.ValorMinimo > 0) inRange += ",'from':'" + element.ValorMinimo + "'";
-                if (element.ValorMaximo > 0) inRange += ",'to':'" + element.ValorMaximo + "'";
-                inRange += "}";
+                let inRange = `{"key":"${element.Nombre}"`; //"{'key':'"+ element.Nombre + "'";
+                if (element.ValorMinimo > 0) inRange += `,"from": "${element.ValorMinimo}"`;// ",'from':'" + element.ValorMinimo + "'";
+                if (element.ValorMaximo > 0) inRange += `,"to": "${element.ValorMinimo}"`;// ",'to':'" + element.ValorMaximo + "'";
+                inRange += `}`;
                 ranges.push(JSON.parse(inRange));
             }
         }
