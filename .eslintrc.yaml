@@ -4,7 +4,7 @@ parserOptions:
  sourceType: module
  ecmaFeatures:
    jsx: true
-   es8: true
+   es6: true
    classes: true
    modules: true
 env:
