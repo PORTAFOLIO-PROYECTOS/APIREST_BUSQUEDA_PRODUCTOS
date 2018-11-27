@@ -4,33 +4,44 @@ class parametrosEntrada {
         codigoCampania,
         codigoConsultora,
         codigoZona,
-        textoBusqueda,
+        cuv,
+        codigoProducto,
         cantidadProductos,
+        personalizaciones,
         sociaEmpresaria,
         suscripcionActiva,
         mdo,
         rd,
         rdi,
         rdr,
-        diaFacturacion,
-        personalizaciones,
-        maximo
+        diaFacturacion
     ) {
-        this.codigoPais = codigoPais;
-        this.codigoCampania = codigoCampania;
-        this.codigoConsultora = codigoConsultora;
-        this.codigoZona = codigoZona;
-        this.textoBusqueda = textoBusqueda;
-        this.cantidadProductos = cantidadProductos;
-        this.sociaEmpresaria = sociaEmpresaria;
-        this.suscripcionActiva = suscripcionActiva;
-        this.mdo = mdo;
-        this.rd = rd;
-        this.rdi = rdi;
-        this.rdr = rdr;
-        this.diaFacturacion = diaFacturacion;
-        this.personalizaciones = personalizaciones;
-        this.maximo = maximo;
+        this.codigoPais = codigoPais,
+            this.codigoCampania = codigoCampania,
+            this.codigoConsultora = codigoConsultora,
+            this.codigoZona = codigoZona,
+            this.cuv = cuv,
+            this.codigoProducto = codigoProducto,
+            this.cantidadProductos = cantidadProductos,
+            this.personalizaciones = personalizaciones,
+            this.sociaEmpresaria = sociaEmpresaria,
+            this.suscripcionActiva = suscripcionActiva,
+            this.mdo = mdo,
+            this.rd = rd,
+            this.rdi = rdi,
+            this.rdr = rdr,
+            this.diaFacturacion = diaFacturacion
+    }
+
+    get fromValue() {
+        return 100;
+    }
+
+    get sortValue() {
+        let campo = "orden",
+            tipoOrdenamiento = "asc",
+            json = `[{"${campo}":"${tipoOrdenamiento}"}]`;
+        return JSON.parse(json);
     }
 }
 

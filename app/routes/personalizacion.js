@@ -1,14 +1,14 @@
 const express = require("express");
 const router = express.Router();
 
-const personalizacionController = require("../controllers/personalizacionController");
+const personalizacionController = require("../controllers/recomendacionController");
 
 router.get(
     "/:codigoPais" +
     "/:codigoCampania" +
     "/:codigoConsultora" +
     "/:origen?",
-    personalizacionController.obtener
+    personalizacionController.recomendaciones
 );
 
 module.exports = router;

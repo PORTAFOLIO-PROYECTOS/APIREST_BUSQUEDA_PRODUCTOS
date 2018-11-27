@@ -33,7 +33,7 @@ exports.busqueda = async function (req, res, next) {
         res.json(d);
         next();
     } catch (error) {
-        console.log('Error en el POST: ', error);
+        console.log('Error en el POST BUSQUEDA: ', error);
         next(error);
     }
 };
