@@ -42,8 +42,7 @@ var elasticSearch = (function () {
                     "gt": 0
                 }
             }
-        }
-        ];
+        }];
     }
 
     /**
@@ -56,9 +55,9 @@ var elasticSearch = (function () {
             categorias = [],
             marcas = [],
             preciosFiltros = [],
-            filtroCategoria = parametros.filtroCategoria,
-            filtroMarca = parametros.filtroMarca,
-            filtroPrecio = parametros.filtroPrecio;
+            filtroCategoria = parametros.filtroCategoria || [],
+            filtroMarca = parametros.filtroMarca || [],
+            filtroPrecio = parametros.filtroPrecio || [];
 
         if (filtroCategoria.length > 0) {
             for (const i in filtroCategoria) {
@@ -124,11 +123,13 @@ var elasticSearch = (function () {
             });
         }
 
-        retorno.push({
-            bool: {
-                "must": must
-            }
-        });
+        if (must) {
+            retorno.push({
+                bool: {
+                    "must": must
+                }
+            });
+        }
     }
 
     /**
@@ -225,6 +226,8 @@ var elasticSearch = (function () {
      * @param {array} dataRedis - Precios del cache de REDIS
      */
     function queryAggregation(dataRedis) {
+        console.log("dataRedis", dataRedis);
+        if (dataRedis.length === 0) return [];
         let ranges = [];
         let preciosRedis = utils.selectInArray(dataRedis, config.constantes.codigoFiltroPrecio);
         if (preciosRedis.length > 0) {
@@ -303,7 +306,6 @@ var elasticSearch = (function () {
      * @param {json} dataRedis - Datos obtenidos desde REDIS
      */
     function queryBuscador(parametrosEntrada, dataRedis) {
-
         let personalizaciones = config.constantes.Personalizacion,
             must = queryParametrosEnDuro();
 
@@ -326,6 +328,40 @@ var elasticSearch = (function () {
                 }
             },
             "aggregations": aggregation
+        };
+    }
+
+    /**
+     * Arma la consulta de es que ejecutará recomendaciones
+     * @param {array} parametrosEntrada - Parametros que recibe el API
+     */
+    function queryRecomendacion(parametrosEntrada) {
+        let personalizaciones = config.constantes.Personalizacion,
+            must = queryParametrosEnDuro();
+
+        queryFiltros(parametrosEntrada, must);
+        queryPersonalizacionesYCondiciones(parametrosEntrada, personalizaciones, must);
+
+        let must_not = queryNegaciones(parametrosEntrada);
+
+        return {
+            from: parametrosEntrada.fromValue,
+            size: 20,
+            sort: parametrosEntrada.sortValue,
+            query: {
+                bool: {
+                    "must": {
+                        bool: {
+                            should: [
+                                { term: { "cuv": parametrosEntrada.cuv } },
+                                { term: { "codigoProducto": parametrosEntrada.codigoProducto } }
+                            ]
+                        }
+                    },
+                    "must_not": must_not,
+                    filter: must
+                }
+            }
         };
     }
 
@@ -354,6 +390,7 @@ var elasticSearch = (function () {
     return {
         queryBuscador: queryBuscador,
         queryPersonalizacion: queryPersonalizacion,
+        queryRecomendacion: queryRecomendacion,
         ejecutarElasticSearch: ejecutarElasticSearch
     };
 

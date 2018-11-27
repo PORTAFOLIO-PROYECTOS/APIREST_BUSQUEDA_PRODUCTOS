@@ -23,8 +23,8 @@ exports.recomendaciones = async function (req, res, next){
     ));
 
     try {
-        //falta
-        res.json();
+        let e = await baseController.ejecutarRecomendaciones();
+        res.json(e);
         next();
     } catch (error) {
         console.log("Error en el POST RECOMENDACIONES: ", error);

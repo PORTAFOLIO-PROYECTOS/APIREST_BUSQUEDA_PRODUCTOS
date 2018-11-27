@@ -2,6 +2,7 @@
 
 const buscadorRepository = require("../repository/buscadorRepository"),
     stockRepository = require("../repository/stockRepository"),
+    recomendacionRepository = require("../repository/recomendacionRepository"),
     parametrosSalida = require("../models/buscador/parametrosSalida"),
     parametrosFiltro = require("../models/buscador/parametrosFiltro"),
     utils = require("../common/utils"),
@@ -22,7 +23,7 @@ class baseController {
         try {
             let name = `${config.ambiente}_${config.name}_${this.parametros.codigoPais}_FiltrosDelBuscador`,
                 dataRedis = await this.obtenerDatosRedis(name, this.parametros.codigoPais),
-                dataElastic = await this.ejecutarElasticsearch(dataRedis),
+                dataElastic = await this.ejecutarQueryBuscador(dataRedis),
                 productos = [],
                 SAPs = [],
                 filtros = [],
@@ -42,6 +43,27 @@ class baseController {
         } catch (error) {
             console.log("Error en ejecutarBusqueda", error);
             return [];
+        }
+    }
+
+    /**
+     * Devuelve JSON con los productos recomendados
+     */
+    async ejecutarRecomendaciones() {
+        try {
+            let dataElastic = await this.ejecutarQueryRecomendacion(),
+                productos = [],
+                total = dataElastic.hits.total;
+
+            productos = this.devuelveJSONProductosRecomendacion(dataElastic);
+            if (productos.length === 0) total = 0;
+
+            return {
+                total: total,
+                productos: productos
+            }
+        } catch (error) {
+            console.log("Error en baseController/ejecutarRecomendaciones:", error);
         }
     }
 
@@ -70,7 +92,7 @@ class baseController {
      * Ejecuta la query de ES
      * @param {array} rangosRedis - Datos de redis
      */
-    async ejecutarElasticsearch(dataRedis) {
+    async ejecutarQueryBuscador(dataRedis) {
         try {
             return new Promise((resolve, reject) => {
                 buscadorRepository.buscar(this.parametros, dataRedis).then((resp) => {
@@ -81,7 +103,26 @@ class baseController {
                 });
             });
         } catch (error) {
-            console.log("Error en ejecutarElasticsearch", error);
+            console.log("Error en ejecutarQueryBuscador", error);
+            return [];
+        }
+    }
+
+    /**
+     * Ejecuta la query de ES
+     */
+    async ejecutarQueryRecomendacion() {
+        try {
+            return new Promise((resolve, reject) => {
+                recomendacionRepository.buscar(this.parametros).then((resp) => {
+                    resolve(resp);
+                }, (err) => {
+                    console.log('Error: al consultar ES');
+                    reject(err);
+                });
+            });
+        } catch (error) {
+            console.log("Error en ejecutarQueryRecomendacion", error);
             return [];
         }
     }
@@ -218,6 +259,43 @@ class baseController {
             marcas,
             precios
         }
+    }
+
+    /**
+     * Devuelve productos que solamente son de Estrategia Individual y pertenece al catálogo físico de L'Bel, Ésika o Cyzone
+     * @param {array} data - Resultado de ES
+     */
+    devuelveJSONProductosRecomendacion(data) {
+        let productos = [];
+
+        for (const key in data.hits.hits) {
+            const element = data.hits.hits[key],
+                source = element._source,
+                imagen = utils.getUrlImagen(source.imagen, this.parametros.codigoPais, source.imagenOrigen, this.parametros.codigoCampania, source.marcaId);
+
+            if (source.tipoPersonalizacion !== "CAT") continue;
+
+            productos.push(new parametrosSalida(
+                source.cuv,
+                source.codigoProducto,
+                imagen ? imagen : "no_tiene_imagen.jpg",
+                source.descripcion,
+                source.valorizado ? source.valorizado : 0,
+                source.precio,
+                source.marcaId,
+                source.tipoPersonalizacion,
+                source.codigoEstrategia ? source.codigoEstrategia : 0,
+                source.codigoTipoEstrategia ? source.codigoTipoEstrategia : '0',
+                source.tipoEstrategiaId ? source.tipoEstrategiaId : 0,
+                source.limiteVenta ? source.limiteVenta : 0,
+                true,
+                source.estrategiaId
+            ));
+
+            if (productos.length === this.parametros.cantidadProductos) return productos;
+        }
+
+        return productos;
     }
 }
 

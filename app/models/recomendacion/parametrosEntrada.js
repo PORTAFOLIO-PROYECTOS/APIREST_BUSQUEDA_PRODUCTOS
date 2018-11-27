@@ -34,7 +34,7 @@ class parametrosEntrada {
     }
 
     get fromValue() {
-        return 100;
+        return 0;
     }
 
     get sortValue() {
