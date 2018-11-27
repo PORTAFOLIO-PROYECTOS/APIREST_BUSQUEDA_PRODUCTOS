@@ -1,3 +1,5 @@
+"use strict";
+
 const config = {
     name: "SBBuscador",
     ambiente: "QA",

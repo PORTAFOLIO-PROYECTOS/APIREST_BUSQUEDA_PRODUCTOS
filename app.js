@@ -1,3 +1,5 @@
+"use strict";
+
 require("newrelic");
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -20,9 +22,7 @@ app.use(morgan(morganConfig.formatCustom, {
 const routeIndex = require("./app/routes/index");
 app.use("/", routeIndex);
 
-// to support JSON-encoded bodies
 app.use(bodyParser.json());
-// to support URL-encoded bodies
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const routeBuscador = require("./app/routes/buscador");
