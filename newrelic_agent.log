@@ -5755,3 +5755,5 @@
 {"v":0,"level":30,"name":"newrelic","hostname":"ZXNLAP024","pid":125648,"time":"2018-11-27T19:19:08.166Z","msg":"Starting New Relic for Node.js connection process."}
 {"v":0,"level":30,"name":"newrelic","hostname":"ZXNLAP024","pid":125648,"time":"2018-11-27T19:19:12.274Z","msg":"Reporting to: https://rpm.newrelic.com/accounts/933369/applications/111314710","component":"new_relic_response"}
 {"v":0,"level":30,"name":"newrelic","hostname":"ZXNLAP024","pid":125648,"time":"2018-11-27T19:19:12.275Z","msg":"Connected to collector-001.newrelic.com:443 with agent run ID WzIse2E6OTgyMTE5NzAyLGI6MTE0OTgxNTY4LGM6OTMzMzY5LGQ6IjQuOC4xIixlOiJub2RlanMiLGY6IlpYTkxBUDAyNCIsZzpbe2E6MTExMzE0NzEwLGI6IlNCQnVzY2Fkb3IgLSBBcGlTZWFyY2gifV19LDU5NTUxMTA1OF0.","component":"collector_api"}
+{"v":0,"level":30,"name":"newrelic","hostname":"ZXNLAP024","pid":130148,"time":"2018-11-27T19:28:56.610Z","msg":"Using New Relic for Node.js. Agent version: 4.8.1; Node version: v8.11.3."}
+{"v":0,"level":30,"name":"newrelic","hostname":"ZXNLAP024","pid":130148,"time":"2018-11-27T19:28:56.733Z","msg":"Starting New Relic for Node.js connection process."}

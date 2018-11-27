@@ -8,7 +8,7 @@ const config = {
         endpoint: {
             buscador: "/buscador",
             personalizacion: "/personalizacion",
-            recomendacion: "/recomendacion"
+            recomendacion: "/recomendaciones"
         },
         newrelic_license_key: "694adcc764c2db2bd666f7872e0614f95278a20b"
     },

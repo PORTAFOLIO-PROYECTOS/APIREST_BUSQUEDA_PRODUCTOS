@@ -31,8 +31,8 @@ app.use(config.app.endpoint.buscador, routeBuscador);
 const routePersonalizacion = require("./app/routes/personalizacion");
 app.use(config.app.endpoint.personalizacion, routePersonalizacion);
 
-/*const routeRecomendacion = require("./app/routes/recomendacion");
-app.use(config.app.endpoint.recomendacion, routeRecomendacion);*/
+const routeRecomendacion = require("./app/routes/recomendacion");
+app.use(config.app.endpoint.recomendacion, routeRecomendacion);
 
 // Manejo de errores
 app.use(function(err, req, res, next) {
