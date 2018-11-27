@@ -354,7 +354,7 @@ var elasticSearch = (function () {
                         bool: {
                             should: [
                                 { term: { "cuv": parametrosEntrada.cuv } },
-                                { term: { "codigoProducto": parametrosEntrada.codigoProducto } }
+                                { terms: { "codigoProducto": [parametrosEntrada.codigoProducto] } }
                             ]
                         }
                     },

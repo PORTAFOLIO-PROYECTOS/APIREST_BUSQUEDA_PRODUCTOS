@@ -273,7 +273,8 @@ class baseController {
                 source = element._source,
                 imagen = utils.getUrlImagen(source.imagen, this.parametros.codigoPais, source.imagenOrigen, this.parametros.codigoCampania, source.marcaId);
 
-            if (source.tipoPersonalizacion !== "CAT") continue;
+            if (source.tipoPersonalizacion === "CAT" || source.tipoPersonalizacion === "LIQ") continue;
+            if (source.codigoEstrategia === 2003) continue;
 
             productos.push(new parametrosSalida(
                 source.cuv,
