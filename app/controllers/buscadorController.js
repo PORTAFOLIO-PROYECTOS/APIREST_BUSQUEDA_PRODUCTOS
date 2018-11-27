@@ -1,3 +1,5 @@
+"use strict";
+
 const parametrosEntrada = require("../models/buscador/parametrosEntrada"),
     utils = require("../common/utils"),
     base = require("../controllers/baseController");
