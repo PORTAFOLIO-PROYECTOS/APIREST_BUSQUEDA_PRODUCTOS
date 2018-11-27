@@ -22,6 +22,6 @@ class buscarRequest {
         this.orden = orden;
         this.filtros = filtros;
     }
-};
+}
 
 module.exports = buscarRequest;

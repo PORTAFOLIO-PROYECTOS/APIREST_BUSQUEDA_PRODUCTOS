@@ -1,11 +1,11 @@
-const config = require('../../config'),
-    utils = require('../common/utils'),
-    filtroShowroom = require('../business/filtroShowRoom'),
-    filtroLanzamiento = require('../business/filtroLanzamiento'),
-    filtroOfertaParaTi = require('../business/filtroOfertaParaTi'),
-    filtroOfertaDelDia = require('../business/filtroOfertaDelDia'),
-    filtroGuiaNegocioDigital = require('../business/filtroGuiaNegocioDigital'),
-    client = require('elasticsearch').Client({
+const config = require("../../config"),
+    utils = require("../common/utils"),
+    filtroShowroom = require("../business/filtroShowRoom"),
+    filtroLanzamiento = require("../business/filtroLanzamiento"),
+    filtroOfertaParaTi = require("../business/filtroOfertaParaTi"),
+    filtroOfertaDelDia = require("../business/filtroOfertaDelDia"),
+    filtroGuiaNegocioDigital = require("../business/filtroGuiaNegocioDigital"),
+    client = require("elasticsearch").Client({
         host: `${config.elasticsearch.host}`,
         log: `${config.elasticsearch.log}`
     });
@@ -126,7 +126,7 @@ var elasticSearch = (function () {
 
         retorno.push({
             bool: {
-                'must': must
+                "must": must
             }
         });
     }
@@ -155,7 +155,7 @@ var elasticSearch = (function () {
                     }
                 });
 
-                if (element == 'CAT' || element == 'LIQ' || element == 'HV') {
+                if (element === "CAT" || element === "LIQ" || element === "HV") {
                     must_dummy.push({
                         term: {
                             "codigoConsultora": consultora0
@@ -171,7 +171,7 @@ var elasticSearch = (function () {
 
                 should.push({
                     bool: {
-                        'must': must_dummy
+                        "must": must_dummy
                     }
                 });
 
@@ -189,7 +189,7 @@ var elasticSearch = (function () {
 
                 should.push({
                     bool: {
-                        'must': must_dummy
+                        "must": must_dummy
                     }
                 });
             }
@@ -230,10 +230,10 @@ var elasticSearch = (function () {
         if (preciosRedis.length > 0) {
             for (const i in preciosRedis) {
                 const element = preciosRedis[i];
-                let inRange = '{"key":"' + element.Nombre + '"';
-                if (element.ValorMinimo > 0) inRange += ',"from":' + element.ValorMinimo;
-                if (element.ValorMaximo > 0) inRange += ',"to":' + element.ValorMaximo;
-                inRange += '}';
+                let inRange = "{'key':'"+ element.Nombre + "'";
+                if (element.ValorMinimo > 0) inRange += ",'from':'" + element.ValorMinimo + "'";
+                if (element.ValorMaximo > 0) inRange += ",'to':'" + element.ValorMaximo + "'";
+                inRange += "}";
                 ranges.push(JSON.parse(inRange));
             }
         }
@@ -268,7 +268,7 @@ var elasticSearch = (function () {
         return [{
             multi_match: {
                 query: textConverted,
-                type: 'cross_fields',
+                type: "cross_fields",
                 fields: [
                     "textoBusqueda.ngram",
                     "cuv",
@@ -320,12 +320,12 @@ var elasticSearch = (function () {
             sort: parametrosEntrada.sortValue,
             query: {
                 bool: {
-                    'must': multi_match,
-                    'must_not': must_not,
+                    "must": multi_match,
+                    "must_not": must_not,
                     filter: must
                 }
             },
-            'aggregations': aggregation
+            "aggregations": aggregation
         };
     }
 

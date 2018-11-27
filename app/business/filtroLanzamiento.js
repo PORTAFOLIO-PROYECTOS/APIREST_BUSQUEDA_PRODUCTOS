@@ -1,4 +1,4 @@
-const config = require('../../config');
+const config = require("../../config");
 
 var filtroLanzamiento = (function() {
 
@@ -10,8 +10,8 @@ var filtroLanzamiento = (function() {
     function filtrar(parametros, personalizacion) {
         if (!config.flags.logicaLanzamiento) return personalizacion;
 
-        if (parametros.suscripcionActiva == '0' || parametros.suscripcionActiva.toLowerCase() == 'false') {
-            return personalizacion.filter(per => per != 'LAN');
+        if (parametros.suscripcionActiva === "0" || parametros.suscripcionActiva.toLowerCase() === "false") {
+            return personalizacion.filter(per => per !== "LAN");
         }
 
         return personalizacion;

@@ -39,7 +39,7 @@ app.use(function(err, req, res, next) {
     err.status = err.status || 500;
 
     res.locals.message = err.message;
-    res.locals.stack = err.stack || error;
+    res.locals.stack = err.stack;
     res.locals.error = err;
 
     res.status(err.status);

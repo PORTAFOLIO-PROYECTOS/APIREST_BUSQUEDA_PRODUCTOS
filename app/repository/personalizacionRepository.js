@@ -1,4 +1,4 @@
-const elasticSearchUtils = require('../common/elasticSearch');
+const elasticSearchUtils = require("../common/elasticSearch");
 
 var personalizacionRepository = (function(){
 

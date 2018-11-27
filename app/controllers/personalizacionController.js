@@ -1,6 +1,5 @@
-const parametrosEntrada = require('../models/personalizacion/parametrosEntradaPersonalizacion');
-const parametrosSalida = require('../models/personalizacion/parametrosSalidaPersonalizacion');
-const personalizacionRepository = require('../repository/personalizacionRepository');
+const parametrosEntrada = require("../models/personalizacion/parametrosEntradaPersonalizacion");
+const personalizacionRepository = require("../repository/personalizacionRepository");
 
 exports.obtener = function(req, res, next){
     let parametros = new parametrosEntrada(
@@ -9,7 +8,7 @@ exports.obtener = function(req, res, next){
         req.params.codigoConsultora
     );
 
-    console.info('Parametros API Personalizacion:\n' + JSON.stringify(parametros));
+    console.info("Parametros API Personalizacion:\n" + JSON.stringify(parametros));
 
     var arreglo = [];
     var resultado = personalizacionRepository.obtener(parametros);
@@ -24,10 +23,10 @@ exports.obtener = function(req, res, next){
                 arreglo.push(source);
             }
         } else {
-            arreglo.push('XYZ');
+            arreglo.push("XYZ");
         }
 
-        res.json(arreglo.join(','));
+        res.json(arreglo.join(","));
         next();
     }, function (err){
         next(err);

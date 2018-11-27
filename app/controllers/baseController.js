@@ -11,7 +11,7 @@ const buscadorRepository = require("../repository/buscadorRepository"),
 
 class baseController {
 
-    constructor(parametros){
+    constructor(parametros) {
         this.parametros = parametros
     }
 
@@ -19,24 +19,29 @@ class baseController {
      * Devuelve un array en formato json con los resultados de la busqueda
      */
     async ejecutarBusqueda() {
-        let name = `${config.ambiente}_${config.name}_${this.parametros.codigoPais}_FiltrosDelBuscador`,
-            dataRedis = await this.obtenerDatosRedis(name, this.parametros.codigoPais),
-            dataElastic = await this.ejecutarElasticsearch(dataRedis),
-            productos = [],
-            SAPs = [],
-            filtros = [],
-            total = dataElastic.hits.total;
+        try {
+            let name = `${config.ambiente}_${config.name}_${this.parametros.codigoPais}_FiltrosDelBuscador`,
+                dataRedis = await this.obtenerDatosRedis(name, this.parametros.codigoPais),
+                dataElastic = await this.ejecutarElasticsearch(dataRedis),
+                productos = [],
+                SAPs = [],
+                filtros = [],
+                total = dataElastic.hits.total;
 
-        productos = this.devuelveJSONProductos(dataElastic, SAPs);
+            productos = this.devuelveJSONProductos(dataElastic, SAPs);
 
-        productos = await this.validarStock(SAPs, this.parametros.codigoPais, this.parametros.diaFacturacion, productos);
+            productos = await this.validarStock(SAPs, this.parametros.codigoPais, this.parametros.diaFacturacion, productos);
 
-        filtros = this.devuelveJSONFiltros(dataElastic, dataRedis);
+            filtros = this.devuelveJSONFiltros(dataElastic, dataRedis);
 
-        return {
-            total: total,
-            productos: productos,
-            filtros: filtros
+            return {
+                total: total,
+                productos: productos,
+                filtros: filtros
+            }
+        } catch (error) {
+            console.log("Error en ejecutarBusqueda", error);
+            return [];
         }
     }
 

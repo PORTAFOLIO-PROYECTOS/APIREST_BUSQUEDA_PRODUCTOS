@@ -1,6 +1,6 @@
-const config = require('../../config');
-const logEvent = require('./logging/logEvent');
-const logManager = require('./logging/logManager');
+const config = require("../../config");
+const logEvent = require("./logging/logEvent");
+const logManager = require("./logging/logManager");
 
 var morganConfig = function() {
 
@@ -8,7 +8,7 @@ var morganConfig = function() {
     let formatoParamatroOrigen = "origen";
     let formatCustom = ":date[clf]、:method、:url、:params、:status、:res[content-length]、:response-time、:messageError、:stackError、:remote-addr、:body";
 
-    function tokenParams(req, res) {
+    function tokenParams(req) {
         return req.route.path;
     }
 
@@ -26,7 +26,7 @@ var morganConfig = function() {
         return "";
     }
 
-    function tokenBody(req, res) {
+    function tokenBody(req) {
         if (req.body) {
             return JSON.stringify(req.body);
         }

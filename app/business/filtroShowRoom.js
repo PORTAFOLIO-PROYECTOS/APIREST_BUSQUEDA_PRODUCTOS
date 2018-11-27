@@ -1,5 +1,5 @@
-const config = require('../../config');
-const utils = require('../common/utils');
+const config = require("../../config");
+const utils = require("../common/utils");
 
 var filtroShowroom = (function () {
 
@@ -16,7 +16,7 @@ var filtroShowroom = (function () {
         let consultoraX = config.constantes.consultoraX,
             consultoraY = config.constantes.consultoraY,
             consultora0 = config.constantes.consultora0,
-            isDummy = utils.isDummy(parametros.personalizaciones, 'SR'),
+            isDummy = utils.isDummy(parametros.personalizaciones, "SR"),
             must = [];
 
         if (isDummy) {
@@ -29,10 +29,10 @@ var filtroShowroom = (function () {
             });
         }
 
-        if (((parametros.rd == '1' || parametros.rd.toLowerCase() == 'true') &&
-            (parametros.mdo == '1' || parametros.mdo.toLowerCase() == 'true') &&
-            (parametros.suscripcionActiva == '0' || parametros.suscripcionActiva.toLowerCase() == 'false'))
-            || (parametros.rd == '0' || parametros.rd.toLowerCase() == 'false')) {
+        if (((parametros.rd === "1" || parametros.rd.toLowerCase() === "true") &&
+            (parametros.mdo === "1" || parametros.mdo.toLowerCase() === "true") &&
+            (parametros.suscripcionActiva === "0" || parametros.suscripcionActiva.toLowerCase() === "false"))
+            || (parametros.rd === "0" || parametros.rd.toLowerCase() === "false")) {
 
             must.push({
                 term: { "tipoPersonalizacion": "SR" }
@@ -48,7 +48,7 @@ var filtroShowroom = (function () {
                 }
             });
 
-            return personalizacion.filter(per => per != 'SR');
+            return personalizacion.filter(per => per !== "SR");
         }
 
         return personalizacion;

@@ -1,5 +1,5 @@
-const config = require('../../config');
-const utils = require('../common/utils');
+const config = require("../../config");
+const utils = require("../common/utils");
 
 var filtroOfertaParaTi = (function () {
 
@@ -17,12 +17,12 @@ var filtroOfertaParaTi = (function () {
             consultoraX = config.constantes.consultoraX,
             consultoraY = config.constantes.consultoraY,
             consultora0 = config.constantes.consultora0,
-            RD = (parametros.rd == '1' || parametros.rd.toLowerCase() == 'true') ? true : false,
-            SuscripcionActiva = (parametros.suscripcionActiva == '1' || parametros.suscripcionActiva.toLowerCase() == 'true') ? true : false,
-            MDO = (parametros.mdo == '1' || parametros.mdo.toLowerCase() == 'true') ? true : false,
-            RDI = (parametros.rdi == '1' || parametros.rdi.toLowerCase() == 'true') ? true : false,
-            isDummyOPM = utils.isDummy(parametros.personalizaciones, 'OPM'),
-            isDummyPAD = utils.isDummy(parametros.personalizaciones, 'PAD');
+            RD = (parametros.rd === "1" || parametros.rd.toLowerCase() === "true") ? true : false,
+            SuscripcionActiva = (parametros.suscripcionActiva === "1" || parametros.suscripcionActiva.toLowerCase() === "true") ? true : false,
+            MDO = (parametros.mdo === "1" || parametros.mdo.toLowerCase() === "true") ? true : false,
+            RDI = (parametros.rdi === "1" || parametros.rdi.toLowerCase() === "true") ? true : false,
+            isDummyOPM = utils.isDummy(parametros.personalizaciones, "OPM"),
+            isDummyPAD = utils.isDummy(parametros.personalizaciones, "PAD");
 
         if (isDummyOPM && isDummyPAD) {
             must.push({ terms: { "codigoConsultora": [consultoraX, consultoraY] } });
@@ -31,7 +31,7 @@ var filtroOfertaParaTi = (function () {
         }
 
         if (RD && MDO && SuscripcionActiva) {
-            return personalizacion.filter(per => per != 'OPT');
+            return personalizacion.filter(per => per !== "OPT");
         }
 
         if (RD && MDO && !SuscripcionActiva) {
@@ -41,24 +41,24 @@ var filtroOfertaParaTi = (function () {
 
             filtro.push({ bool: { must } });
 
-            personalizacion = personalizacion.filter(per => per != 'OPM');
-            personalizacion = personalizacion.filter(per => per != 'PAD');
-            return personalizacion.filter(per => per != 'OPT');
+            personalizacion = personalizacion.filter(per => per !== "OPM");
+            personalizacion = personalizacion.filter(per => per !== "PAD");
+            return personalizacion.filter(per => per !== "OPT");
 
         }
 
         if (RD && !MDO && SuscripcionActiva) {
-            return personalizacion.filter(per => per != 'OPT');
+            return personalizacion.filter(per => per !== "OPT");
         }
 
         if (RD && !MDO && !SuscripcionActiva) {
-            personalizacion = personalizacion.filter(per => per != 'OPM');
-            return personalizacion.filter(per => per != 'PAD');
+            personalizacion = personalizacion.filter(per => per !== "OPM");
+            return personalizacion.filter(per => per !== "PAD");
         }
 
         if (RDI) {
-            personalizacion = personalizacion.filter(per => per != 'OPM');
-            return personalizacion.filter(per => per != 'PAD');
+            personalizacion = personalizacion.filter(per => per !== "OPM");
+            return personalizacion.filter(per => per !== "PAD");
         }
 
         return personalizacion;

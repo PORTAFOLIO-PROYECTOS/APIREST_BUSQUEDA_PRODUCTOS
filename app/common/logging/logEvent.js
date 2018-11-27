@@ -1,4 +1,4 @@
-const os = require('os');
+const os = require("os");
 
 class logEvent {
     constructor(
@@ -31,6 +31,6 @@ class logEvent {
         this.Source = source;
         this.Application = application;
     }
-};
+}
 
 module.exports = logEvent;

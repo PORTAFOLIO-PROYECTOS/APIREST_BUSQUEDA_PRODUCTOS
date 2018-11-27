@@ -1,5 +1,5 @@
-const config = require('../../config');
-const utils = require('../common/utils');
+const config = require("../../config");
+const utils = require("../common/utils");
 
 var filtroOfertaDelDia = (function () {
 
@@ -16,7 +16,7 @@ var filtroOfertaDelDia = (function () {
         let consultoraX = config.constantes.consultoraX,
             consultoraY = config.constantes.consultoraY,
             consultora0 = config.constantes.consultora0,
-            isDummy = utils.isDummy(parametros.personalizaciones, 'ODD'),
+            isDummy = utils.isDummy(parametros.personalizaciones, "ODD"),
             must = [
                 { term: { "tipoPersonalizacion": "ODD" } },
                 { term: { "diaInicio": parametros.diaFacturacion } }
@@ -36,7 +36,7 @@ var filtroOfertaDelDia = (function () {
             }
         );
 
-        return personalizacion.filter(per => per != 'ODD');
+        return personalizacion.filter(per => per !== "ODD");
     }
 
     return {

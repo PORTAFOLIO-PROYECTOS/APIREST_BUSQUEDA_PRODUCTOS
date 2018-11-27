@@ -30,6 +30,6 @@ class parametrosSalida {
         this.Stock = Stock;
         this.EstrategiaID = EstrategiaID;
     }
-};
+}
 
 module.exports = parametrosSalida;

@@ -1,13 +1,13 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-const personalizacionController = require('../controllers/personalizacionController');
+const personalizacionController = require("../controllers/personalizacionController");
 
 router.get(
-    '/:codigoPais' +
-    '/:codigoCampania' +
-    '/:codigoConsultora' +
-    '/:origen?',
+    "/:codigoPais" +
+    "/:codigoCampania" +
+    "/:codigoConsultora" +
+    "/:origen?",
     personalizacionController.obtener
 );
 

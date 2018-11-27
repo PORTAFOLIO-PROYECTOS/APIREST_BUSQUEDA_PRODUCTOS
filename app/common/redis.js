@@ -1,5 +1,5 @@
-const config = require('../../config'),
-    client = require('redis').createClient(config.redis.port, config.redis.host);
+const config = require("../../config"),
+    client = require("redis").createClient(config.redis.port, config.redis.host);
 
 client.on("error", function (err) {
     console.log("Error Redis: " + err);

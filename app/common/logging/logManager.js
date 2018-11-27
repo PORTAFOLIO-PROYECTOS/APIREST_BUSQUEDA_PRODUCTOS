@@ -1,7 +1,7 @@
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
-const request = require('sync-request');
-const config = require('../../../config');
+const request = require("sync-request");
+const config = require("../../../config");
 
 var logManager = function() {
 
@@ -12,14 +12,14 @@ var logManager = function() {
         var yyyy = today.getFullYear();
 
         if (dd < 10) {
-            dd = '0' + dd
+            dd = "0" + dd
         }
 
         if (mm < 10) {
-            mm = '0' + mm
+            mm = "0" + mm
         }
 
-        return config.elasticLogging.pattern + yyyy + '.' + mm + '.' + dd;
+        return config.elasticLogging.pattern + yyyy + "." + mm + "." + dd;
     };
 
     let addLog = function(logEvent) {
@@ -30,7 +30,7 @@ var logManager = function() {
 
             if (config.elasticLogging.enabled === true) {
                 let url = config.elasticLogging.endpoint + getIndexName() + "/LogEvent";
-                request('POST', url, { json: logEvent });
+                request("POST", url, { json: logEvent });
             }
 
         } catch (error) {

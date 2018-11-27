@@ -56,9 +56,9 @@ class parametrosEntrada {
         if(this.ordenTipo && this.ordenTipo.length > 0)
             tipoOrdenamiento = this.ordenTipo.toLowerCase();
             
-        var json = '[{ "' + campo + '": "' + tipoOrdenamiento + '"}]';
+        var json = "[{ '" + campo + "': '" + tipoOrdenamiento + "'}]";
         return JSON.parse(json);
     }
-};
+}
 
 module.exports = parametrosEntrada;
