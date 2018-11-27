@@ -221,4 +221,4 @@ class baseController {
     }
 }
 
-module.exports = baseController;
+module.exports = baseController();

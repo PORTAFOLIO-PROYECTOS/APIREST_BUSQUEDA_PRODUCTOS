@@ -8,7 +8,6 @@ client.on("error", function (err) {
 var redis = (function () {
 
     async function getRedis(name) {
-
         return new Promise((resolve, reject) => {
             client.get(name, (err, result) => {
                 if (err) reject(err);
@@ -23,6 +22,7 @@ var redis = (function () {
             resolve(true);
         });
     }
+    
     return {
         getRedis: getRedis,
         setRedis: setRedis
