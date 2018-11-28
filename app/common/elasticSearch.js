@@ -236,7 +236,7 @@ var elasticSearch = (function () {
                 let inRange = `{"key":"${element.Nombre}"`; //"{'key':'"+ element.Nombre + "'";
                 if (element.ValorMinimo > 0) inRange += `,"from": "${element.ValorMinimo}"`;// ",'from':'" + element.ValorMinimo + "'";
                 if (element.ValorMaximo > 0) inRange += `,"to": "${element.ValorMinimo}"`;// ",'to':'" + element.ValorMaximo + "'";
-                inRange += `}`;
+                inRange += "}";
                 ranges.push(JSON.parse(inRange));
             }
         }
