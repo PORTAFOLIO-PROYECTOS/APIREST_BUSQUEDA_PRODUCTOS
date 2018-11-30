@@ -1,19 +1,19 @@
-const request = require('sync-request');
-const config = require('../../config');
+const request = require("sync-request");
+const config = require("../../config");
 
 var stockRepository = (function () {
 
-    async function Validar(_saps, _iso) {
-        _saps = _saps.join('|');
+    async function Validar(saps, iso) {
+        saps = saps.join("|");
 
-        return new Promise((resolve, reject) => {
-            let peticion = request('POST', config.constantes.urlApiProl, {
+        return new Promise((resolve) => {
+            let peticion = request("POST", config.constantes.urlApiProl, {
                 json: {
-                    SAPs: _saps,
-                    ISOPais: _iso
+                    SAPs: saps,
+                    ISOPais: iso
                 }
             });
-            resolve(JSON.parse(peticion.getBody('utf8')));
+            resolve(JSON.parse(peticion.getBody("utf8")));
         });
     }
 

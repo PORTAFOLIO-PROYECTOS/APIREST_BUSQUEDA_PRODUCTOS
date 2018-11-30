@@ -1,11 +1,11 @@
-const config = require('../../config');
-const mssql = require('mssql');
+const config = require("../../config");
+const mssql = require("mssql");
 
 var sql = (function (){
 
     async function filtrosData(codigoPais){
 
-        mssql.on('error', err => {
+        mssql.on("error", err => {
             console.dir(err);
             mssql.close();
         });
@@ -14,7 +14,7 @@ var sql = (function (){
 
         return new Promise((resolve, reject) => {
             mssql.connect(connectionString).then(pool => {
-                return pool.request().query('SELECT TablaLogicaDatosID, Nombre, Descripcion, ValorMinimo, ValorMaximo FROM FiltroBuscador WHERE Estado = 1');
+                return pool.request().query("SELECT TablaLogicaDatosID, Nombre, Descripcion, ValorMinimo, ValorMaximo FROM FiltroBuscador WHERE Estado = 1");
             }).then(result => {
                 mssql.close();
                 resolve(result.recordset);

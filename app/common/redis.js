@@ -17,7 +17,7 @@ var redis = (function () {
     }
 
     async function setRedis(name, value) {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             client.set(name, value);
             resolve(true);
         });

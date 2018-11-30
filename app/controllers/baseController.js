@@ -15,7 +15,6 @@ class baseController {
     constructor(parametros) {
         this.parametros = parametros
     }
-
     /**
      * Devuelve un array en formato json con los resultados de la busqueda
      */
@@ -75,9 +74,9 @@ class baseController {
     async obtenerDatosRedis(key, isoPais) {
         try {
             let dataRedis = await redis.getRedis(key);
-            if (dataRedis == null || dataRedis == "") {
+            if (dataRedis === null || dataRedis === "") {
                 let resultSql = JSON.stringify(await sql.filtrosData(isoPais));//- Consulta en SQLServer
-                let setRedis = await redis.setRedis(name, resultSql);//- Inserción de la consulta en REDIS
+                let setRedis = await redis.setRedis(key, resultSql);//- Inserción de la consulta en REDIS
                 if (!setRedis) return false;
                 dataRedis = resultSql;
             }
@@ -98,7 +97,7 @@ class baseController {
                 buscadorRepository.buscar(this.parametros, dataRedis).then((resp) => {
                     resolve(resp);
                 }, (err) => {
-                    console.log('Error: al consultar ES');
+                    console.log("Error: al consultar ES");
                     reject(err);
                 });
             });
@@ -117,7 +116,7 @@ class baseController {
                 recomendacionRepository.buscar(this.parametros).then((resp) => {
                     resolve(resp);
                 }, (err) => {
-                    console.log('Error: al consultar ES');
+                    console.log("Error: al consultar ES");
                     reject(err);
                 });
             });
@@ -137,14 +136,14 @@ class baseController {
     async validarStock(SAPs, isoPais, diaFacturacion, productos) {
         try {
             if (config.flags.validacionStock && diaFacturacion >= 0) {
-                console.log('antes de ejecutar stock');
+                console.log("antes de ejecutar stock");
                 let dataStock = await stockRepository.Validar(SAPs, isoPais);
-                console.log('despues de ejecutar stock', dataStock);
+                console.log("despues de ejecutar stock", dataStock);
                 //- Paso 5.2: Validación datos stock
                 for (const i in dataStock) {
                     for (const j in productos) {
-                        if (dataStock[i].codsap == productos[j].SAP) {
-                            productos[j].Stock = dataStock[i].estado == 1 ? true : false;
+                        if (dataStock[i].codsap === productos[j].SAP) {
+                            productos[j].Stock = dataStock[i].estado === 1 ? true : false;
                             break;
                         }
                     }
@@ -181,14 +180,14 @@ class baseController {
                 source.marcaId,
                 source.tipoPersonalizacion,
                 source.codigoEstrategia ? source.codigoEstrategia : 0,
-                source.codigoTipoEstrategia ? source.codigoTipoEstrategia : '0',
+                source.codigoTipoEstrategia ? source.codigoTipoEstrategia : "0",
                 source.tipoEstrategiaId ? source.tipoEstrategiaId : 0,
                 source.limiteVenta ? source.limiteVenta : 0,
                 true,
                 source.estrategiaId
             ));
 
-            if (SAPs.indexOf(source.codigoProducto) < 0 && (source.codigoProducto != undefined || source.codigoProducto != null)) {
+            if (SAPs.indexOf(source.codigoProducto) < 0 && (source.codigoProducto !== undefined || source.codigoProducto !== null)) {
                 SAPs.push(source.codigoProducto);
             }
         }
@@ -214,43 +213,43 @@ class baseController {
 
         for (const i in categoriasRedis) {
             const element = categoriasRedis[i];
-            const dataES = categoriasES.find(x => x.key == element.Nombre);
-            const dataEntrada = this.parametros.filtroCategoria.find(x => x.idFiltro == element.Descripcion);
+            const dataES = categoriasES.find(x => x.key === element.Nombre);
+            const dataEntrada = this.parametros.filtroCategoria.find(x => x.idFiltro === element.Descripcion);
 
             categorias.push(
                 new parametrosFiltro(
                     element.Descripcion,
                     element.Nombre,
-                    dataES == undefined ? 0 : dataES.doc_count,
-                    dataEntrada == undefined ? false : true
+                    dataES === undefined ? 0 : dataES.doc_count,
+                    dataEntrada === undefined ? false : true
                 ));
         }
 
         for (const i in marcasRedis) {
             const element = marcasRedis[i];
-            const dataEntrada = this.parametros.filtroMarca.find(x => x.idFiltro.toLowerCase() == element.Descripcion.toLowerCase());
-            const dataES = marcasES.find(x => x.key == element.Nombre);
+            const dataEntrada = this.parametros.filtroMarca.find(x => x.idFiltro.toLowerCase() === element.Descripcion.toLowerCase());
+            const dataES = marcasES.find(x => x.key === element.Nombre);
 
             marcas.push(
                 new parametrosFiltro(
                     element.Descripcion,
                     element.Nombre,
-                    dataES == undefined ? 0 : dataES.doc_count,
-                    dataEntrada == undefined ? false : true
+                    dataES === undefined ? 0 : dataES.doc_count,
+                    dataEntrada === undefined ? false : true
                 ));
         }
 
         for (const i in preciosRedis) {
             const element = preciosRedis[i];
-            const dataES = preciosES.find(x => x.key == element.Nombre);
-            const dataEntrada = this.parametros.filtroPrecio.find(x => x.idFiltro == element.Descripcion);
+            const dataES = preciosES.find(x => x.key === element.Nombre);
+            const dataEntrada = this.parametros.filtroPrecio.find(x => x.idFiltro === element.Descripcion);
 
             precios.push(
                 new parametrosFiltro(
                     element.Descripcion,
                     element.Nombre,
-                    dataES == undefined ? 0 : dataES.doc_count,
-                    dataEntrada == undefined ? false : true
+                    dataES === undefined ? 0 : dataES.doc_count,
+                    dataEntrada === undefined ? false : true
                 ));
         }
 
@@ -286,7 +285,7 @@ class baseController {
                 source.marcaId,
                 source.tipoPersonalizacion,
                 source.codigoEstrategia ? source.codigoEstrategia : 0,
-                source.codigoTipoEstrategia ? source.codigoTipoEstrategia : '0',
+                source.codigoTipoEstrategia ? source.codigoTipoEstrategia :"0",
                 source.tipoEstrategiaId ? source.tipoEstrategiaId : 0,
                 source.limiteVenta ? source.limiteVenta : 0,
                 true,

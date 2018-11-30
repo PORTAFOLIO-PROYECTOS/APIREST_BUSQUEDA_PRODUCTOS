@@ -1,6 +1,7 @@
 extends:
  - eslint:recommended
 parserOptions:
+ ecmaVersion: 8
  sourceType: module
  ecmaFeatures:
    jsx: true
@@ -28,7 +29,7 @@ rules:
  no-mixed-spaces-and-tabs: 2
  no-param-reassign: 1
  no-redeclare: 2
- no-underscore-dangle: 1
+ no-underscore-dangle: [2, { "allow": ["_source"] }]
  no-unreachable: 2
  no-unused-vars: 2
  no-use-before-define: 2

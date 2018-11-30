@@ -12,8 +12,6 @@ const config = require("../../config"),
 
 var elasticSearch = (function () {
 
-    
-
     /**
      * Ejecuta la consulta que se envía hacia ES
      * @param {array} parametros - Parametros de entrada que recibe la aplicación
