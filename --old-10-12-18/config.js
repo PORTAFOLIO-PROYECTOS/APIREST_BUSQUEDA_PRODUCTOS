@@ -42,7 +42,7 @@ const config = {
         logicaOPT: true,
         logicaODD: true,
         logicaGN: true,
-        validacionStock: true
+        validacionStock: false
     },
     constantes: {
         urlImagenesSB: "https://d1y60eoca8fkyl.cloudfront.net/",

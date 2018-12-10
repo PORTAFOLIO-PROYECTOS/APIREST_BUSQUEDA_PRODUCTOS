@@ -38,8 +38,9 @@ class parametrosEntrada {
     }
 
     get sortValue() {
-        let tipoOrdenamiento = "asc",
-            json = `[{"codigoEstrategia":"${tipoOrdenamiento}"},{"ganancia":"${tipoOrdenamiento}"}]`;
+        let campo = "orden",
+            tipoOrdenamiento = "asc",
+            json = `[{"${campo}":"${tipoOrdenamiento}"}]`;
         return JSON.parse(json);
     }
 }

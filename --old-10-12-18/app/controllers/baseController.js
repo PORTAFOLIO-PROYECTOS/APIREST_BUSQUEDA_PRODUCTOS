@@ -7,8 +7,8 @@ const buscadorRepository = require("../repository/buscadorRepository"),
     parametrosFiltro = require("../models/buscador/parametrosFiltro"),
     utils = require("../common/utils"),
     config = require("../../config"),
-    redis = require("../repository/redis"),
-    sql = require("../repository/sql");
+    redis = require("../common/redis"),
+    sql = require("../common/sql");
 
 class baseController {
 
@@ -56,7 +56,6 @@ class baseController {
 
             productos = this.devuelveJSONProductosRecomendacion(dataElastic);
             if (productos.length === 0) total = 0;
-            total = productos.length;
 
             return {
                 total: total,
@@ -137,7 +136,10 @@ class baseController {
     async validarStock(SAPs, isoPais, diaFacturacion, productos) {
         try {
             if (config.flags.validacionStock && diaFacturacion >= 0) {
+                console.log("antes de ejecutar stock");
                 let dataStock = await stockRepository.Validar(SAPs, isoPais);
+                console.log("despues de ejecutar stock", dataStock);
+                //- Paso 5.2: Validación datos stock
                 for (const i in dataStock) {
                     for (const j in productos) {
                         if (dataStock[i].codsap === productos[j].SAP) {
@@ -151,7 +153,7 @@ class baseController {
             return productos;
         } catch (error) {
             console.log("Error en validarStock", productos);
-            return productos;
+            return [];
         }
     }
 
@@ -269,6 +271,9 @@ class baseController {
             const element = data.hits.hits[key],
                 source = element._source,
                 imagen = utils.getUrlImagen(source.imagen, this.parametros.codigoPais, source.imagenOrigen, this.parametros.codigoCampania, source.marcaId);
+
+            if (source.tipoPersonalizacion === "CAT" || source.tipoPersonalizacion === "LIQ") continue;
+            if (source.codigoEstrategia === 2003) continue;
 
             productos.push(new parametrosSalida(
                 source.cuv,

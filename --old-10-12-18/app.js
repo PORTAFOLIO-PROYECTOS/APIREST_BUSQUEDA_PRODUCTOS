@@ -18,7 +18,7 @@ app.use(morgan(morganConfig.formatCustom, {
     stream: { write: morganConfig.streamWriteCustom }
 }));
 
-// Cargar enrutamiento 
+// Cargar enrutamiento
 const routeIndex = require("./app/routes/index");
 app.use("/", routeIndex);
 
