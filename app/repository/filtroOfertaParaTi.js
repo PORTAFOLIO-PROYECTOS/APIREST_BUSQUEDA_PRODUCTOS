@@ -9,8 +9,8 @@ var filtroOfertaParaTi = (function () {
      * @param {array} personalizacion - Personalizaciones que tiene la consultora
      * @param {json} filtro - return de array con las condiciones de OPT
      */
-    function filtrar(parametros, personalizacion, filtro) {
-
+    function filtrar(parametros, personalizaciones, filtro) {
+        let personalizacion = personalizaciones;
         if (!config.flags.logicaOPT) return personalizacion;
 
         let must = [],

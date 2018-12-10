@@ -4,12 +4,12 @@ const config = require("../../config");
 var stockRepository = (function () {
 
     async function Validar(saps, iso) {
-        saps = saps.join("|");
+        let codigoProductos = saps.join("|");
 
         return new Promise((resolve) => {
             let peticion = request("POST", config.constantes.urlApiProl, {
                 json: {
-                    SAPs: saps,
+                    SAPs: codigoProductos,
                     ISOPais: iso
                 }
             });

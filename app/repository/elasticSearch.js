@@ -200,11 +200,12 @@ var elasticSearch = (function () {
     /**
      * Arma el query que contiene la validación de la consultora Dummy y las condiciones de ODD, OPT, SR, GN y LAN
      * @param {array} parametros - Parametros que recibe el API
-     * @param {array} personalizaciones - Personalizaiones que tiene la consultora
+     * @param {array} dummyPersonalizaciones - Personalizaiones que tiene la consultora
      * @param {*} retorno - JSON con las condiciones y consultora Dummy
      */
-    function queryPersonalizacionesYCondiciones(parametros, personalizaciones, retorno, recomendaciones) {
-        let should = [];
+    function queryPersonalizacionesYCondiciones(parametros, dummyPersonalizaciones, retorno, recomendaciones) {
+        let should = [],
+            personalizaciones = dummyPersonalizaciones;
 
         personalizaciones = filtroShowroom.filtrar(parametros, personalizaciones, should);
         personalizaciones = filtroOfertaParaTi.filtrar(parametros, personalizaciones, should);
@@ -300,7 +301,7 @@ var elasticSearch = (function () {
             must.push(
                 {
                     term: { "tipoPersonalizacion": "GND" }
-                }, 
+                },
                 {
                     term: { "tipoPersonalizacion": "LIQ" }
                 },
