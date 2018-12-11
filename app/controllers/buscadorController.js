@@ -23,9 +23,7 @@ exports.busqueda = async function (req, res, next) {
         req.body.paginacion.numeroPagina,
         req.body.orden.campo,
         req.body.orden.tipo,
-        utils.validarFiltro(req.body.filtro.categoria),
-        utils.validarFiltro(req.body.filtro.marca),
-        utils.validarFiltro(req.body.filtro.precio)
+        utils.validarFiltro(req.body.filtro)
     ));
 
     try {

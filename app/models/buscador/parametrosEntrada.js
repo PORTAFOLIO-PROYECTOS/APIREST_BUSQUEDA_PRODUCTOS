@@ -17,9 +17,7 @@ class parametrosEntrada {
         numeroPagina,
         ordenCampo,
         ordenTipo,
-        filtroCategoria,
-        filtroMarca,
-        filtroPrecio
+        filtro
     ) {
         this.codigoPais = codigoPais;
         this.codigoCampania = codigoCampania;
@@ -38,9 +36,7 @@ class parametrosEntrada {
         this.numeroPagina = numeroPagina;
         this.ordenCampo = ordenCampo;
         this.ordenTipo = ordenTipo;
-        this.filtroCategoria = filtroCategoria,
-        this.filtroMarca = filtroMarca,
-        this.filtroPrecio = filtroPrecio 
+        this.filtro = filtro
     }
 
     get fromValue(){
@@ -50,6 +46,7 @@ class parametrosEntrada {
     get sortValue(){
         var campo = "orden";
         var tipoOrdenamiento = "asc";
+
         if(this.ordenCampo && this.ordenCampo.length > 0)
             campo = this.ordenCampo.toLowerCase();
 
@@ -57,7 +54,7 @@ class parametrosEntrada {
             tipoOrdenamiento = this.ordenTipo.toLowerCase();
             
         var json = `[{"${campo}":"${tipoOrdenamiento}"}]`;
-        //var json = "[{ '" + campo + "': '" + tipoOrdenamiento + "'}]";
+
         return JSON.parse(json);
     }
 }

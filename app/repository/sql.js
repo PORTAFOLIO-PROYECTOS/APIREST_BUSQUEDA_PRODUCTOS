@@ -14,7 +14,7 @@ var sql = (function (){
 
         return new Promise((resolve, reject) => {
             mssql.connect(connectionString).then(pool => {
-                return pool.request().query("SELECT TablaLogicaDatosID, Nombre, Descripcion, ValorMinimo, ValorMaximo FROM FiltroBuscador WHERE Estado = 1");
+                return pool.request().execute("[dbo].[BuscadorFiltros_Lista]");
             }).then(result => {
                 mssql.close();
                 resolve(result.recordset);

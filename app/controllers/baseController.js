@@ -20,7 +20,7 @@ class baseController {
      */
     async ejecutarBusqueda() {
         try {
-            let name = `${config.ambiente}_${config.name}_${this.parametros.codigoPais}_FiltrosDelBuscador`,
+            let name = `${config.ambiente}_${config.name}_${this.parametros.codigoPais}_SeccionFiltroBuscador`,
                 dataRedis = await this.obtenerDatosRedis(name, this.parametros.codigoPais),
                 dataElastic = await this.ejecutarQueryBuscador(dataRedis),
                 productos = [],

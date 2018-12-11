@@ -330,7 +330,7 @@ var elasticSearch = (function () {
         let personalizaciones = config.constantes.Personalizacion,
             must = queryParametrosEnDuro();
 
-        queryFiltros(parametrosEntrada, must);
+        queryFiltros(parametrosEntrada, must, dataRedis);
         queryPersonalizacionesYCondiciones(parametrosEntrada, personalizaciones, must, false);
 
         let aggregation = queryAggregation(dataRedis);
