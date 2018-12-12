@@ -103,7 +103,8 @@ var utils = (function () {
                 result.push({
                     id: item.TablaLogicaDatosId,
                     filtro: item.CampoES,
-                    tipo: item.TipoOperadorES
+                    tipo: item.TipoOperadorES,
+                    nombre: item.FiltroSeccion
                 });
             }
         }
