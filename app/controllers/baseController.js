@@ -150,7 +150,7 @@ class baseController {
 
             return productos;
         } catch (error) {
-            console.log("Error en validarStock", productos);
+            console.log("Error en validarStock", error);
             return productos;
         }
     }

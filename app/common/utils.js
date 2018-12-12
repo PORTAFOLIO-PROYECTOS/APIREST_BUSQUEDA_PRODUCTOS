@@ -6,14 +6,16 @@ var utils = (function () {
      * Devuelve ruta y nombre de la imagen
      * @param {string} nombre - Nombre de la imagen
      * @param {string} paisISO - Codigo del país
-     * @param {Int} origen - viene de ES
+     * @param {Int} tipoOrigen - viene de ES
      * @param {string} campania - Codigo campania
      * @param {Int} marcaId - Codigo marca del producto
      */
-    function getUrlImagen(nombre, paisISO, origen, campania, marcaId) {
+    function getUrlImagen(nombre, paisISO, tipoOrigen, campania, marcaId) {
+       
         let urlSB = config.constantes.urlImagenesSB,
             urlAPP = config.constantes.urlImagenesAppCatalogo,
-            matriz = config.constantes.Matriz + "/";
+            matriz = config.constantes.Matriz + "/",
+            origen = parseInt(tipoOrigen);
 
         if (nombre === undefined || nombre === null) return "no_tiene_imagen.jpg";
         if (!nombre.length) return "no_tiene_imagen.jpg";
@@ -24,11 +26,11 @@ var utils = (function () {
         if (nombre.startsWith("https")) {
             return nombre;
         }
-
+        
         if (origen === 1) {
             return urlSB + matriz + paisISO + "/" + nombre;
         }
-
+        
         if (origen === 2) {
             let marcas = ["L", "E", "C"];
 
@@ -73,7 +75,7 @@ var utils = (function () {
         let result = [];
         for (const key in array) {
             const element = array[key];
-            if (element.TablaLogicaDatosID === value) {
+            if (element.TablaLogicaDatosId === value) {
                 result.push(element);
             }
         }

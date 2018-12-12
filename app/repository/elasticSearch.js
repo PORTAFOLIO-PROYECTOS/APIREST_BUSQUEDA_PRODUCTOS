@@ -231,56 +231,41 @@ var elasticSearch = (function () {
 
         let filtros = utils.distinctInArrayRedis(dataRedis),
             resultado = "{",
-            i = 0;
-        
+            i = 0,
+            j = 0;
+
         for (const key in filtros) {
             const item = filtros[key];
             if (i > 0) resultado += ",";
             if (item.tipo === "term") {
                 resultado += `"${item.nombre}-${item.id}": { "terms": { "field": "${item.filtro}" }}`;
             }
-            if (item.tipo === "range"){
-                resultado += "{aa}";
+            
+            if (item.tipo === "range") {
+                const filterInSeccion = utils.selectInArray(dataRedis, item.id);
+                resultado += `"${item.nombre}-${item.id}": { "range": { "field": "${item.filtro}", "ranges": [`;
+                for (const y in filterInSeccion) {
+                    if (j > 0) resultado += ",";
+                    const filter = filterInSeccion[y];
+                    resultado += `{"key":"${filter.FiltroNombre}"`;
+                    if (filter.ValorMinimo > 0) resultado += `,"from": "${filter.ValorMinimo}"`;
+                    if (filter.ValorMaximo > 0) resultado += `,"to": "${filter.ValorMaximo}"`;
+                    resultado += "}";
+                    j++;
+                }
+                resultado += "]}}";
             }
             i++;
         }
 
+        resultado += "}";
+        
         console.log("Filtros!!!!", filtros);
         console.log("Resultado!!", resultado);
+        console.log("Resultado!!", JSON.parse(resultado));
 
-        if (dataRedis.length === 0) return [];
-        let ranges = [];
-        let preciosRedis = utils.selectInArray(dataRedis, config.constantes.codigoFiltroPrecio);
-        if (preciosRedis.length > 0) {
-            for (const i in preciosRedis) {
-                const element = preciosRedis[i];
-                let inRange = `{"key":"${element.Nombre}"`; //"{'key':'"+ element.Nombre + "'";
-                if (element.ValorMinimo > 0) inRange += `,"from": "${element.ValorMinimo}"`;// ",'from':'" + element.ValorMinimo + "'";
-                if (element.ValorMaximo > 0) inRange += `,"to": "${element.ValorMinimo}"`;// ",'to':'" + element.ValorMaximo + "'";
-                inRange += "}";
-                ranges.push(JSON.parse(inRange));
-            }
-        }
+        return JSON.parse(resultado);
 
-        return {
-            categoriasFiltro: {
-                terms: {
-                    "field": "categorias.keyword"
-                }
-            },
-            marcasFiltro: {
-                terms: {
-                    "field": "marcas.keyword"
-                }
-            },
-            preciosFiltro: {
-                range: {
-                    "field": "precio",
-                    ranges
-                }
-
-            }
-        };
     }
 
     /**
