@@ -227,6 +227,7 @@ var elasticSearch = (function () {
      * @param {array} dataRedis - Precios del cache de REDIS
      */
     function queryAggregation(dataRedis) {
+        
         if (dataRedis.length === 0) return [];
         let ranges = [];
         let preciosRedis = utils.selectInArray(dataRedis, config.constantes.codigoFiltroPrecio);
@@ -330,10 +331,11 @@ var elasticSearch = (function () {
         let personalizaciones = config.constantes.Personalizacion,
             must = queryParametrosEnDuro();
 
-        queryFiltros(parametrosEntrada, must, dataRedis);
+        queryFiltros(parametrosEntrada, must);
         queryPersonalizacionesYCondiciones(parametrosEntrada, personalizaciones, must, false);
 
         let aggregation = queryAggregation(dataRedis);
+        console.log("Agregations!!!", utils.distinctInArrayRedis(dataRedis));
         let multi_match = queryMultiMatch(parametrosEntrada.textoBusqueda);
         let must_not = queryNegaciones(parametrosEntrada, false);
 

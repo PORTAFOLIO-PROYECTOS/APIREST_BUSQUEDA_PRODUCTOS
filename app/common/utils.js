@@ -1,7 +1,7 @@
 const config = require("../../config");
 
 var utils = (function () {
-    
+
     /**
      * Devuelve ruta y nombre de la imagen
      * @param {string} nombre - Nombre de la imagen
@@ -93,12 +93,31 @@ var utils = (function () {
         return val;
     }
 
+    function distinctInArrayRedis(data) {
+        let result = [],
+            map = new Map();
+
+        for (const item of data) {
+            if (!map.has(item.TablaLogicaDatosId)){
+                map.set(item.TablaLogicaDatosId, true);
+                result.push({
+                    id: item.TablaLogicaDatosId,
+                    filtro: item.CampoES,
+                    tipo: item.TipoOperadorES
+                });
+            }
+        }
+
+        return result;
+    }
+
     return {
         getUrlImagen: getUrlImagen,
         isDummy: isDummy,
         decodeText: decodeText,
         selectInArray: selectInArray,
-        validarFiltro: validarFiltro
+        validarFiltro: validarFiltro,
+        distinctInArrayRedis: distinctInArrayRedis
     };
 
 })();
