@@ -63,12 +63,15 @@ var elasticSearch = (function () {
             const configSeccion = filtrosRedis.find(x => x.nombre === element.NombreGrupo);
 
             if (configSeccion){
-                if (configSeccion.tipo === "term"){
-
+                if (configSeccion.tipo === "term") {
+                    for (const i in filtros) {
+                        const fila = filtros[i];
+                            
+                    }
                 }
 
-                if (configSeccion.tipo === "range"){
-                    
+                if (configSeccion.tipo === "range") {
+
                 }
             }
             
