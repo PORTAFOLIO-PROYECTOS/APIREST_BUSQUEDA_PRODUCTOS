@@ -199,63 +199,33 @@ class baseController {
      * @param {array} dataRedis - Resultado de la consulta de REDIS
      */
     devuelveJSONFiltros(data, dataRedis) {
-        let preciosRedis = utils.selectInArray(dataRedis, config.constantes.codigoFiltroPrecio),
-            marcasRedis = utils.selectInArray(dataRedis, config.constantes.codigoFiltroMarca),
-            categoriasRedis = utils.selectInArray(dataRedis, config.constantes.codigoFiltroCategoria),
-            categoriasES = data.aggregations.categoriasFiltro.buckets,
-            marcasES = data.aggregations.marcasFiltro.buckets,
-            preciosES = data.aggregations.preciosFiltro.buckets,
-            categorias = [],
-            marcas = [],
-            precios = [];
+        let resultado = [],
+            filtros = utils.distinctInArrayRedis(dataRedis);
 
-        for (const i in categoriasRedis) {
-            const element = categoriasRedis[i];
-            const dataES = categoriasES.find(x => x.key === element.Nombre);
-            const dataEntrada = this.parametros.filtroCategoria.find(x => x.idFiltro === element.Descripcion);
-
-            categorias.push(
-                new parametrosFiltro(
-                    element.Descripcion,
-                    element.Nombre,
-                    dataES === undefined ? 0 : dataES.doc_count,
-                    dataEntrada === undefined ? false : true
-                ));
+        for (const key in filtros) {
+            const item = filtros[key],
+                armando = [],
+                filtroEnSeccionRedis = utils.selectInArray(dataRedis, item.id),
+                filtroResultadoES = data.aggregations[`${item.nombre}-${item.id}`].buckets;
+            for (const i in filtroEnSeccionRedis) {
+                const filter = filtroEnSeccionRedis[i];
+                const dataES = filtroResultadoES.find(x => x.key === filter.FiltroNombre);
+                const dataEntrada = undefined;
+                armando.push(
+                    new parametrosFiltro(
+                        filter.Codigo,
+                        filter.FiltroNombre,
+                        dataES === undefined ? 0 : dataES.doc_count,
+                        dataEntrada === undefined ? false : true
+                    )
+                );
+            }
+            resultado.push({
+                NombreGrupo: item.nombre,
+                Opciones: armando
+            });
         }
-
-        for (const i in marcasRedis) {
-            const element = marcasRedis[i];
-            const dataEntrada = this.parametros.filtroMarca.find(x => x.idFiltro.toLowerCase() === element.Descripcion.toLowerCase());
-            const dataES = marcasES.find(x => x.key === element.Nombre);
-
-            marcas.push(
-                new parametrosFiltro(
-                    element.Descripcion,
-                    element.Nombre,
-                    dataES === undefined ? 0 : dataES.doc_count,
-                    dataEntrada === undefined ? false : true
-                ));
-        }
-
-        for (const i in preciosRedis) {
-            const element = preciosRedis[i];
-            const dataES = preciosES.find(x => x.key === element.Nombre);
-            const dataEntrada = this.parametros.filtroPrecio.find(x => x.idFiltro === element.Descripcion);
-
-            precios.push(
-                new parametrosFiltro(
-                    element.Descripcion,
-                    element.Nombre,
-                    dataES === undefined ? 0 : dataES.doc_count,
-                    dataEntrada === undefined ? false : true
-                ));
-        }
-
-        return {
-            categorias,
-            marcas,
-            precios
-        }
+        return resultado;
     }
 
     /**
@@ -280,7 +250,7 @@ class baseController {
                 source.marcaId,
                 source.tipoPersonalizacion,
                 source.codigoEstrategia ? source.codigoEstrategia : 0,
-                source.codigoTipoEstrategia ? source.codigoTipoEstrategia :"0",
+                source.codigoTipoEstrategia ? source.codigoTipoEstrategia : "0",
                 source.tipoEstrategiaId ? source.tipoEstrategiaId : 0,
                 source.limiteVenta ? source.limiteVenta : 0,
                 true,

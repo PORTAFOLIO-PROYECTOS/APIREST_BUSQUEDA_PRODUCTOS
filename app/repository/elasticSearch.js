@@ -48,9 +48,37 @@ var elasticSearch = (function () {
     /**
      * Devuelve un json con los datos de los filtros
      * @param {array} parametros - Parametros de entrada que recibe la aplicación
+     * @param {array} dataRedis - Datos de Redis
      * @param {json} retorno - Retorna json con la query de los filtros
      */
-    function queryFiltros(parametros, retorno) {
+    function queryFiltros(parametros, dataRedis, retorno) {
+        if (parametros.filtro.length === 0) return;
+
+        let filtrosRedis = utils.distinctInArrayRedis(dataRedis),
+            resultado = [];
+
+        for (const key in parametros.filtro) {
+            const element = parametros.filtro[key];
+            const filtros = element.Opciones;
+            const configSeccion = filtrosRedis.find(x => x.nombre === element.NombreGrupo);
+
+            if (configSeccion){
+                if (configSeccion.tipo === "term"){
+
+                }
+
+                if (configSeccion.tipo === "range"){
+                    
+                }
+            }
+            
+                
+        }
+
+        
+        
+
+
         let must = [], // Contenedor de los resultados (Y)
             categorias = [],
             marcas = [],
@@ -95,7 +123,8 @@ var elasticSearch = (function () {
             for (const i in filtroPrecio) {
                 const element = filtroPrecio[i];
                 let precio = [];
-                if (element.min > 0 && element.max > 0) precio.push({
+                if (element.min > 0 && element.max > 0) 
+                precio.push({ 
                     from: element.min,
                     to: element.max
                 });
@@ -259,13 +288,8 @@ var elasticSearch = (function () {
         }
 
         resultado += "}";
-        
-        console.log("Filtros!!!!", filtros);
-        console.log("Resultado!!", resultado);
-        console.log("Resultado!!", JSON.parse(resultado));
 
         return JSON.parse(resultado);
-
     }
 
     /**
@@ -336,7 +360,7 @@ var elasticSearch = (function () {
         let personalizaciones = config.constantes.Personalizacion,
             must = queryParametrosEnDuro();
 
-        queryFiltros(parametrosEntrada, must);
+        queryFiltros(parametrosEntrada, dataRedis, must);
         queryPersonalizacionesYCondiciones(parametrosEntrada, personalizaciones, must, false);
 
         let aggregation = queryAggregation(dataRedis);
@@ -366,7 +390,7 @@ var elasticSearch = (function () {
         let personalizaciones = config.constantes.Personalizacion,
             must = queryParametrosEnDuro();
 
-        queryFiltros(parametrosEntrada, must);
+        //queryFiltros(parametrosEntrada, must);
 
         let parametrosPersonalizacion = personalizaciones.filter(per => per !== "GND");
         parametrosPersonalizacion = parametrosPersonalizacion.filter(per => per !== "CAT");
