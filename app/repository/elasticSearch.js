@@ -61,28 +61,46 @@ var elasticSearch = (function () {
             const element = parametros.filtro[key];
             const filtros = element.Opciones;
             const configSeccion = filtrosRedis.find(x => x.nombre === element.NombreGrupo);
-
-            if (configSeccion){
+            console.log("CONFIGSECCION", configSeccion);
+            if (configSeccion) {
                 const valores = [];
-                if (configSeccion.tipo === "term") {
-                    for (const i in filtros) {
-                        const fila = filtros[i];
+                const ranges = [];
+                for (const i in filtros) {
+                    const fila = filtros[i];
+                    if (configSeccion.tipo === "term") {
                         valores.push({
                             term: {
                                 [configSeccion.filtro]: fila.NombreFiltro
                             }
                         });
                     }
+
+                    if (configSeccion.tipo === "range") {
+                        if (fila.Min > 0 && fila.Max > 0) {
+                            ranges.push({
+                                from: fila.Min,
+                                to: fila.Max
+                            });
+                        } else {
+                            if (fila.Max > 0) ranges.push({ to: fila.Max });
+                            if (fila.Min > 0) ranges.push({ from: fila.Min });
+                        }
+
+                        if (ranges.length > 0) {
+                            valores.push({ range: { [configSeccion.filtro]: ranges } });
+                        }
+                    }
                 }
+
                 must.push({
                     bool: {
                         should: valores
                     }
                 });
-            }                
+            }
         }
 
-        if (must){
+        if (must) {
             retorno.push({
                 bool: {
                     must: must
@@ -199,7 +217,7 @@ var elasticSearch = (function () {
             if (item.tipo === "term") {
                 resultado += `"${item.nombre}-${item.id}": { "terms": { "field": "${item.filtro}" }}`;
             }
-            
+
             if (item.tipo === "range") {
                 const filterInSeccion = utils.selectInArray(dataRedis, item.id);
                 resultado += `"${item.nombre}-${item.id}": { "range": { "field": "${item.filtro}", "ranges": [`;
