@@ -55,7 +55,7 @@ var elasticSearch = (function () {
         if (parametros.filtro.length === 0) return;
 
         let filtrosRedis = utils.distinctInArrayRedis(dataRedis),
-            resultado = [];
+            must = [];
 
         for (const key in parametros.filtro) {
             const element = parametros.filtro[key];
@@ -63,102 +63,29 @@ var elasticSearch = (function () {
             const configSeccion = filtrosRedis.find(x => x.nombre === element.NombreGrupo);
 
             if (configSeccion){
+                const valores = [];
                 if (configSeccion.tipo === "term") {
                     for (const i in filtros) {
                         const fila = filtros[i];
-                            
+                        valores.push({
+                            term: {
+                                [configSeccion.filtro]: fila.NombreFiltro
+                            }
+                        });
                     }
                 }
-
-                if (configSeccion.tipo === "range") {
-
-                }
-            }
-            
-                
-        }
-
-        
-        
-
-
-        let must = [], // Contenedor de los resultados (Y)
-            categorias = [],
-            marcas = [],
-            preciosFiltros = [],
-            filtroCategoria = parametros.filtroCategoria || [],
-            filtroMarca = parametros.filtroMarca || [],
-            filtroPrecio = parametros.filtroPrecio || [];
-
-        if (filtroCategoria.length > 0) {
-            for (const i in filtroCategoria) {
-                const element = filtroCategoria[i];
-                categorias.push({
-                    term: {
-                        "categorias.keyword": element.nombreFiltro
+                must.push({
+                    bool: {
+                        should: valores
                     }
                 });
-            }
-            must.push({
-                bool: {
-                    should: categorias
-                }
-            });
+            }                
         }
 
-        if (filtroMarca.length > 0) {
-            for (const i in filtroMarca) {
-                const element = filtroMarca[i];
-                marcas.push({
-                    term: {
-                        "marcas.keyword": element.nombreFiltro
-                    }
-                });
-            }
-            must.push({
-                bool: {
-                    should: marcas
-                }
-            });
-        }
-
-        if (filtroPrecio.length > 0) {
-            for (const i in filtroPrecio) {
-                const element = filtroPrecio[i];
-                let precio = [];
-                if (element.min > 0 && element.max > 0) 
-                precio.push({ 
-                    from: element.min,
-                    to: element.max
-                });
-                else {
-                    if (element.max > 0) precio.push({
-                        to: element.max
-                    });
-                    if (element.min > 0) precio.push({
-                        from: element.min
-                    });
-                }
-
-                if (precio.length > 0) {
-                    preciosFiltros.push({
-                        range: {
-                            precio
-                        }
-                    });
-                }
-            }
-            must.push({
-                bool: {
-                    should: preciosFiltros
-                }
-            });
-        }
-
-        if (must) {
+        if (must){
             retorno.push({
                 bool: {
-                    "must": must
+                    must: must
                 }
             });
         }
