@@ -206,11 +206,13 @@ class baseController {
             const item = filtros[key],
                 armando = [],
                 filtroEnSeccionRedis = utils.selectInArray(dataRedis, item.id),
-                filtroResultadoES = data.aggregations[`${item.nombre}-${item.id}`].buckets;
+                filtroResultadoES = data.aggregations[`${item.nombre}-${item.id}`].buckets,
+                filtroEnParametros = this.parametros.filtro.find(x => x.NombreGrupo === item.nombre);
+
             for (const i in filtroEnSeccionRedis) {
                 const filter = filtroEnSeccionRedis[i];
                 const dataES = filtroResultadoES.find(x => x.key === filter.FiltroNombre);
-                const dataEntrada = undefined;
+                const dataEntrada = filtroEnParametros === undefined ? filtroEnParametros : filtroEnParametros.Opciones.find(x => x.IdFiltro === filter.Codigo);
                 armando.push(
                     new parametrosFiltro(
                         filter.Codigo,

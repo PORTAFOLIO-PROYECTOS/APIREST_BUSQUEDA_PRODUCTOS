@@ -53,7 +53,7 @@ var elasticSearch = (function () {
      */
     function queryFiltros(parametros, dataRedis, retorno) {
         if (parametros.filtro.length === 0) return;
-
+        
         let filtrosRedis = utils.distinctInArrayRedis(dataRedis),
             must = [];
 
@@ -61,7 +61,7 @@ var elasticSearch = (function () {
             const element = parametros.filtro[key];
             const filtros = element.Opciones;
             const configSeccion = filtrosRedis.find(x => x.nombre === element.NombreGrupo);
-            console.log("CONFIGSECCION", configSeccion);
+  
             if (configSeccion) {
                 const valores = [];
                 const ranges = [];

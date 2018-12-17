@@ -45,24 +45,21 @@ const config = {
         validacionStock: true
     },
     constantes: {
-        urlImagenesSB: "https://d1y60eoca8fkyl.cloudfront.net/",
+        urlImagenesSB: "https://cdn1-prd.somosbelcorp.com/",
         urlImagenesAppCatalogo: "https://s3-sa-east-1.amazonaws.com/appcatalogo/",
         urlApiProl: "http://internal-qaelb-webprol-182416748.us-east-1.elb.amazonaws.com:81/api/Pedido/ValidacionStock",
         Matriz: "Matriz",
         Personalizacion: ["GND", "LAN", "ODD", "OPM", "OPT", "PAD", "SR", "LIQ", "CAT", "HV"],
         consultoraX: "XXXXXXXXX",
         consultoraY: "YYYYYYYYY",
-        consultora0: "000000000",
-        codigoFiltroCategoria: 14801,
-        codigoFiltroMarca: 14802,
-        codigoFiltroPrecio: 14803
+        consultora0: "000000000"
     },
     elasticLogging: {
         endpoint: "https://search-qas-atd-f5uoi2tmrjd2i7rtdhfglnr7le.us-west-2.es.amazonaws.com/",
         pattern: "qas-consultoras-ws-sbm-buscador-search-",
         type: "/LogEvent",
         application: "WebService",
-        enabled: false
+        enabled: true
     }
 };
 
