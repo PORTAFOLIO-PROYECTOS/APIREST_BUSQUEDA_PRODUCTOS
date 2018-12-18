@@ -13,8 +13,7 @@ class parametrosSalida {
         TipoEstrategiaId,
         LimiteVenta,
         Stock,
-        EstrategiaID,
-        MaterialGanancia
+        EstrategiaID
     ) {
         this.CUV = CUV;
         this.SAP = SAP;
@@ -30,7 +29,6 @@ class parametrosSalida {
         this.LimiteVenta = LimiteVenta;
         this.Stock = Stock;
         this.EstrategiaID = EstrategiaID;
-        this.MaterialGanancia = MaterialGanancia
     }
 }
 

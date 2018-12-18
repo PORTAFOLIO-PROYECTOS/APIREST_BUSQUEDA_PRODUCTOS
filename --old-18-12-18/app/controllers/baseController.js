@@ -182,8 +182,7 @@ class baseController {
                 source.tipoEstrategiaId ? source.tipoEstrategiaId : 0,
                 source.limiteVenta ? source.limiteVenta : 0,
                 true,
-                source.estrategiaId,
-                source.materialGanancia ? true : false
+                source.estrategiaId
             ));
 
             if (SAPs.indexOf(source.codigoProducto) < 0 && (source.codigoProducto !== undefined || source.codigoProducto !== null)) {
