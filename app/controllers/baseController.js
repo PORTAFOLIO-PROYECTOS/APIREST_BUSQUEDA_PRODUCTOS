@@ -1,14 +1,14 @@
 "use strict";
 
-const buscadorRepository = require("../repository/buscadorRepository"),
-    stockRepository = require("../repository/stockRepository"),
-    recomendacionRepository = require("../repository/recomendacionRepository"),
+const buscadorRepository = require("../repositories/buscadorRepository"),
+    stockRepository = require("../repositories/stockRepository"),
+    recomendacionRepository = require("../repositories/recomendacionRepository"),
     parametrosSalida = require("../models/buscador/parametrosSalida"),
     parametrosFiltro = require("../models/buscador/parametrosFiltro"),
     utils = require("../common/utils"),
     config = require("../../config"),
-    redis = require("../repository/redis"),
-    sql = require("../repository/sql");
+    redis = require("../repositories/redis"),
+    sql = require("../repositories/sql");
 
 class baseController {
 
