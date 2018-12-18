@@ -1,4 +1,4 @@
-class parametrosEntradaPersonalizacion {
+module.exports = class ParametrosEntrada {
     constructor(
         codigoPais,
         codigoCampania,
@@ -9,4 +9,3 @@ class parametrosEntradaPersonalizacion {
         this.codigoConsultora = codigoConsultora
     }
 }
-module.exports = parametrosEntradaPersonalizacion;

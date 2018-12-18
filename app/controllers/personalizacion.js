@@ -1,5 +1,5 @@
-const parametrosEntrada = require("../models/personalizacion/parametrosEntradaPersonalizacion");
-const personalizacionRepository = require("../repositories/personalizacionRepository");
+const parametrosEntrada = require("../models/personalizacion/parametros-entrada");
+const personalizacionRepository = require("../repositories/personalizacion");
 
 exports.obtener = function(req, res, next){
     let parametros = new parametrosEntrada(

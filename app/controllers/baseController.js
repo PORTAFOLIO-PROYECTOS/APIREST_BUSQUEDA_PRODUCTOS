@@ -2,9 +2,9 @@
 
 const buscadorRepository = require("../repositories/buscador"),
     stockRepository = require("../repositories/stock"),
-    recomendacionRepository = require("../repositories/recomendacionRepository"),
-    parametrosSalida = require("../models/buscador/parametrosSalida"),
-    parametrosFiltro = require("../models/buscador/parametrosFiltro"),
+    recomendacionRepository = require("../repositories/recomendacion"),
+    parametrosSalida = require("../models/buscador/parametros-salida"),
+    parametrosFiltro = require("../models/buscador/parametros-filtro"),
     utils = require("../utils/utils"),
     config = require("../../config"),
     redis = require("../repositories/redis"),

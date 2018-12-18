@@ -1,6 +1,6 @@
 "use strict";
 
-const parametrosEntrada = require("../models/recomendacion/parametrosEntrada"),
+const parametrosEntrada = require("../models/recomendacion/parametros-entrada"),
     base = require("./baseController");
 
 exports.recomendaciones = async function (req, res, next){

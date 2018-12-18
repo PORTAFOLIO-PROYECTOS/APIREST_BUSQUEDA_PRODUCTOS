@@ -1,4 +1,4 @@
-class parametrosEntrada {
+module.exports = class ParametrosEntrada {
     constructor(
         codigoPais,
         codigoCampania,
@@ -43,5 +43,3 @@ class parametrosEntrada {
         return JSON.parse(json);
     }
 }
-
-module.exports = parametrosEntrada;

@@ -1,8 +1,7 @@
-class parametrosSalidaPersonalizacion{
+module.exports = class ParametrosSalida{
     constructor(
         personalizaciones
     ) {
         this.personalizaciones = personalizaciones
     }
 }
-module.exports = parametrosSalidaPersonalizacion;

@@ -1,4 +1,4 @@
-class parametrosFiltro {
+module.exports =  class parametrosFiltro {
     constructor (
         idFiltro,
         nombreFiltro,
@@ -11,5 +11,3 @@ class parametrosFiltro {
         this.marcado = marcado
     }
 }
-
-module.exports = parametrosFiltro;

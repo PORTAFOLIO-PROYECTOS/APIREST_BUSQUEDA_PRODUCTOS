@@ -1,4 +1,4 @@
-class parametrosSalida {
+module.exports = class parametrosSalida {
     constructor(
         CUV,
         SAP,
@@ -33,5 +33,3 @@ class parametrosSalida {
         this.MaterialGanancia = MaterialGanancia
     }
 }
-
-module.exports = parametrosSalida;

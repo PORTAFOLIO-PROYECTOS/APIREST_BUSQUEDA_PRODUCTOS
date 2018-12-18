@@ -1,6 +1,6 @@
 "use strict";
 
-const parametrosEntrada = require("../models/buscador/parametrosEntrada"),
+const parametrosEntrada = require("../models/buscador/parametros-entrada"),
     utils = require("../utils/utils"),
     base = require("./baseController");
 
