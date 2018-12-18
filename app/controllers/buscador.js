@@ -2,7 +2,7 @@
 
 const parametrosEntrada = require("../models/buscador/parametros-entrada"),
     utils = require("../utils/utils"),
-    base = require("./baseController");
+    base = require("./base");
 
 exports.busqueda = async function (req, res, next) {
     let baseController = new base(new parametrosEntrada(

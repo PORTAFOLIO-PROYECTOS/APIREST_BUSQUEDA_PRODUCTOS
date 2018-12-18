@@ -7,7 +7,8 @@ const buscadorRepository = require("../repositories/buscador"),
     parametrosFiltro = require("../models/buscador/parametros-filtro"),
     utils = require("../utils/utils"),
     config = require("../../config"),
-    redis = require("../repositories/redis"),
+    redisConectar = require("../repositories/redis"),
+    redis = new redisConectar(),
     sql = require("../repositories/sql");
 
 class baseController {
@@ -74,10 +75,10 @@ class baseController {
      */
     async obtenerDatosRedis(key, isoPais) {
         try {
-            let dataRedis = await redis.getRedis(key);
+            let dataRedis = await redis.get(key);
             if (dataRedis === null || dataRedis === "") {
                 let resultSql = JSON.stringify(await sql.filtrosData(isoPais));//- Consulta en SQLServer
-                let setRedis = await redis.setRedis(key, resultSql);//- Inserción de la consulta en REDIS
+                let setRedis = await redis.set(key, resultSql);//- Inserción de la consulta en REDIS
                 if (!setRedis) return false;
                 dataRedis = resultSql;
             }

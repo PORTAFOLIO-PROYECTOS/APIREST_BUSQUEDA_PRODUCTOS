@@ -20,7 +20,10 @@ const config = {
     },
     redis: {
         port: 6379,
-        host: "ecconsultorasqa.ombwyy.0001.use1.cache.amazonaws.com"
+        host: "ecconsultorasqa.ombwyy.0001.use1.cache.amazonaws.com",
+        retries: 3,
+        time_to_retry: 100,
+        time_live: 86400 // tiempo de vida en segundos
     },
     sql: {
         BO: "Server=AWNTS74; Initial Catalog=BelcorpBolivia; User ID=sa; Password=C0n$ult0r@$;",
