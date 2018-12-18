@@ -1,11 +1,11 @@
 "use strict";
 
-const buscadorRepository = require("../repositories/buscadorRepository"),
-    stockRepository = require("../repositories/stockRepository"),
+const buscadorRepository = require("../repositories/buscador"),
+    stockRepository = require("../repositories/stock"),
     recomendacionRepository = require("../repositories/recomendacionRepository"),
     parametrosSalida = require("../models/buscador/parametrosSalida"),
     parametrosFiltro = require("../models/buscador/parametrosFiltro"),
-    utils = require("../common/utils"),
+    utils = require("../utils/utils"),
     config = require("../../config"),
     redis = require("../repositories/redis"),
     sql = require("../repositories/sql");

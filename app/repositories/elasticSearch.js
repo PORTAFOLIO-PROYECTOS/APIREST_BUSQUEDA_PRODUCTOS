@@ -1,10 +1,10 @@
 const config = require("../../config"),
-    utils = require("../common/utils"),
-    filtroShowroom = require("./filtros/showRoom"),
-    filtroLanzamiento = require("./filtros/filtroLanzamiento"),
-    filtroOfertaParaTi = require("./filtros/filtroOfertaParaTi"),
-    filtroOfertaDelDia = require("./filtros/filtroOfertaDelDia"),
-    filtroGuiaNegocioDigital = require("./filtros/guiaNegocioDigital"),
+    utils = require("../utils/utils"),
+    filtroShowroom = require("./filtros/show-room"),
+    filtroLanzamiento = require("./filtros/lanzamiento"),
+    filtroOfertaParaTi = require("./filtros/oferta-para-ti"),
+    filtroOfertaDelDia = require("./filtros/oferta-del-dia"),
+    filtroGuiaNegocioDigital = require("./filtros/guia-negocio-digital"),
     client = require("elasticsearch").Client({
         host: `${config.elasticsearch.host}`,
         log: `${config.elasticsearch.log}`
@@ -17,7 +17,7 @@ var elasticSearch = (function () {
      * @param {array} parametros - Parametros de entrada que recibe la aplicación
      * @param {json} body - Cuerpo de la consulta que se va ejecutar en ES
      */
-    function ejecutarElasticSearch(parametros, body) {
+    function ejecutar(parametros, body) {
         let indexName = `${config.elasticsearch.index}_${parametros.codigoPais.toLowerCase()}_${parametros.codigoCampania}`;
         let typeName = config.elasticsearch.type;
         return client.search({
@@ -395,7 +395,7 @@ var elasticSearch = (function () {
         queryBuscador: queryBuscador,
         queryPersonalizacion: queryPersonalizacion,
         queryRecomendacion: queryRecomendacion,
-        ejecutarElasticSearch: ejecutarElasticSearch
+        ejecutar: ejecutar
     };
 
 })();

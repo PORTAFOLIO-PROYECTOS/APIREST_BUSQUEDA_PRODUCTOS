@@ -1,8 +1,8 @@
 "use strict";
 
 const parametrosEntrada = require("../models/buscador/parametrosEntrada"),
-    utils = require("../common/utils"),
-    base = require("../controllers/baseController");
+    utils = require("../utils/utils"),
+    base = require("./baseController");
 
 exports.busqueda = async function (req, res, next) {
     let baseController = new base(new parametrosEntrada(

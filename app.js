@@ -5,7 +5,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const config = require("./config");
-const morganConfig = require("./app/common/morganConfig");
+const morganConfig = require("./app/utils/morganConfig");
 const app = express();
 
 // Captura de logging (info + error)

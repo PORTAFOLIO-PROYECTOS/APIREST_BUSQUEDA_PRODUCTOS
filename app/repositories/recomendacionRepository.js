@@ -1,11 +1,11 @@
-const elasticSearchUtils = require("./elasticSearch");
+const elasticSearch = require("./elasticSearch");
 
 var recomendacionRepository = (function() {
 
     async function buscar(parametrosEntrada) {
-        let body = elasticSearchUtils.queryRecomendacion(parametrosEntrada);
+        let body = elasticSearch.queryRecomendacion(parametrosEntrada);
         console.info("Query ES:\n" + JSON.stringify(body));
-        return elasticSearchUtils.ejecutarElasticSearch(parametrosEntrada, body);
+        return elasticSearch.ejecutar(parametrosEntrada, body);
     }
 
     return {

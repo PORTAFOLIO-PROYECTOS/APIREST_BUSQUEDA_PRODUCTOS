@@ -1,10 +1,10 @@
-const elasticSearchUtils = require("./elasticSearch");
+const elasticSearch = require("./elasticSearch");
 
 var personalizacionRepository = (function(){
 
     function obtener(parametrosEntrada){
-        let body = elasticSearchUtils.queryPersonalizacion(parametrosEntrada);
-        return elasticSearchUtils.ejecutarElasticSearch(parametrosEntrada, body)
+        let body = elasticSearch.queryPersonalizacion(parametrosEntrada);
+        return elasticSearch.ejecutar(parametrosEntrada, body)
     }
 
     return {

@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const personalizacionController = require("../controllers/personalizacionController");
+const personalizacionController = require("../controllers/personalizacion");
 
 router.get(
     "/:codigoPais" +

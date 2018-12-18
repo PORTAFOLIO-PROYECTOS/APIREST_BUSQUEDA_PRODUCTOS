@@ -1,5 +1,5 @@
 const config = require("../../../config");
-const utils = require("../../common/utils");
+const utils = require("../../utils/utils");
 
 var filtroShowroom = (function () {
 
