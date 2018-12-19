@@ -31,7 +31,7 @@ class baseController {
 
             productos = this.devuelveJSONProductos(dataElastic, SAPs);
 
-            productos = await this.validarStock(SAPs, this.parametros.codigoPais, this.parametros.diaFacturacion, productos);
+            productos = await this.validarStock(SAPs, this.parametros.codigoPais, this.parametros.diaFacturacion, productos, false);
 
             filtros = this.devuelveJSONFiltros(dataElastic, dataRedis);
 
@@ -53,9 +53,12 @@ class baseController {
         try {
             let dataElastic = await this.ejecutarQueryRecomendacion(),
                 productos = [],
+                SAPs = [],
                 total = dataElastic.hits.total;
 
-            productos = this.devuelveJSONProductosRecomendacion(dataElastic);
+            productos = this.devuelveJSONProductos(dataElastic, SAPs);
+           // productos = await this.validarStock(SAPs, this.parametros.codigoPais, this.parametros.diaFacturacion, productos, true);
+            //productos = this.devuelveJSONProductosRecomendacion(dataElastic);
             if (productos.length === 0) total = 0;
             total = productos.length;
 
@@ -134,8 +137,9 @@ class baseController {
      * @param {string} isoPais - ISO del país
      * @param {int} diaFacturacion - Día de facturación 
      * @param {array} productos - Lista de productos a validar
+     * @param {boolean} recomendados - Flag para validar si es una recomendación u otro
      */
-    async validarStock(SAPs, isoPais, diaFacturacion, productos) {
+    async validarStock(SAPs, isoPais, diaFacturacion, productos, recomendados) {
         try {
             if (config.flags.validacionStock && diaFacturacion >= 0) {
                 let dataStock = await stockRepository.Validar(SAPs, isoPais);
@@ -146,6 +150,17 @@ class baseController {
                             break;
                         }
                     }
+                }
+
+                if (recomendados) {
+                    let array = [];
+                    for (const key in productos) {
+                        const element = productos[key];
+                        if (element.Stock === true){
+                            array.push(element);
+                        }
+                    }
+                    productos = array;
                 }
             }
 
@@ -236,7 +251,7 @@ class baseController {
      * Devuelve productos que solamente son de Estrategia Individual y pertenece al catálogo físico de L'Bel, Ésika o Cyzone
      * @param {array} data - Resultado de ES
      */
-    devuelveJSONProductosRecomendacion(data) {
+    /*devuelveJSONProductosRecomendacion(data) {
         let productos = [];
 
         for (const key in data.hits.hits) {
@@ -265,7 +280,7 @@ class baseController {
         }
 
         return productos;
-    }
+    }*/
 }
 
 module.exports = baseController;
