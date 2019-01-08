@@ -1,10 +1,8 @@
 const config = require("../../config");
 const mssql = require("mssql");
 
-var sql = (function (){
-
-    async function filtrosData(codigoPais){
-
+module.exports = class SqlBuscadorFiltrosLista {
+    async Lista(codigoPais){
         mssql.on("error", err => {
             console.dir(err);
             mssql.close();
@@ -25,10 +23,4 @@ var sql = (function (){
             });
         });
     }
-
-    return {
-        filtrosData: filtrosData
-    }
-})();
-
-module.exports = sql;
+}
