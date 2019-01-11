@@ -25,14 +25,18 @@ app.use("/", routeIndex);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+//#region 
 const routeBuscador = require("./app/routes/buscador");
-app.use(config.app.endpoint.buscador, routeBuscador);
-
 const routePersonalizacion = require("./app/routes/personalizacion");
-app.use(config.app.endpoint.personalizacion, routePersonalizacion);
-
 const routeRecomendacion = require("./app/routes/recomendacion");
+const routeCategoria = require("./app/routes/categoria");
+
+app.use(config.app.endpoint.buscador, routeBuscador);
+app.use(config.app.endpoint.personalizacion, routePersonalizacion);
 app.use(config.app.endpoint.recomendacion, routeRecomendacion);
+app.use(config.app.endpoint.categoria, routeCategoria);
+
+//#endregion
 
 // Manejo de errores
 app.use(function(err, req, res, next) {

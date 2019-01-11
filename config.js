@@ -8,13 +8,14 @@ const config = {
         endpoint: {
             buscador: "/buscador",
             personalizacion: "/personalizacion",
-            recomendacion: "/recomendaciones"
+            recomendacion: "/recomendaciones",
+            categoria: "/categoria"
         },
         newrelic_license_key: "694adcc764c2db2bd666f7872e0614f95278a20b"
     },
     elasticsearch: {
         host: "https://vpc-es-sbsearch-qas-u4pht5gehqu3pmsc4x5srachwu.us-east-1.es.amazonaws.com",
-        index: "dev_producto_v1",
+        index: "dev_producto",
         type: "_doc",
         log: ""
     },
