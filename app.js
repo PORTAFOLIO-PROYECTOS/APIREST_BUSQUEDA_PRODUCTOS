@@ -25,7 +25,7 @@ app.use("/", routeIndex);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-//#region 
+//#region End Point's
 const routeBuscador = require("./app/routes/buscador");
 const routePersonalizacion = require("./app/routes/personalizacion");
 const routeRecomendacion = require("./app/routes/recomendacion");
