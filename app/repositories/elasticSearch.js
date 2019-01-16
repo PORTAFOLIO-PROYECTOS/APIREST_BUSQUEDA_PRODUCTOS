@@ -53,7 +53,7 @@ var elasticSearch = (function () {
      */
     function queryFiltros(parametros, dataRedis, retorno) {
         if (parametros.filtro.length === 0) return;
-        
+
         let filtrosRedis = utils.distinctInArrayRedis(dataRedis),
             must = [];
 
@@ -61,7 +61,7 @@ var elasticSearch = (function () {
             const element = parametros.filtro[key];
             const filtros = element.Opciones;
             const configSeccion = filtrosRedis.find(x => x.nombre === element.NombreGrupo);
-  
+
             if (configSeccion) {
                 const valores = [];
                 const ranges = [];
@@ -369,6 +369,36 @@ var elasticSearch = (function () {
         };
     }
 
+    /**
+     * Construye la consulta que devolvera las categorías agrupadas
+     * @param {array} parametrosEntrada - Parametros de entrada que recibe el API
+     */
+    function queryCategorias(parametrosEntrada) {
+
+        let personalizaciones = config.constantes.Personalizacion,
+            must = queryParametrosEnDuro();
+
+        queryPersonalizacionesYCondiciones(parametrosEntrada, personalizaciones, must, false);
+
+        let must_not = queryNegaciones(parametrosEntrada, false);
+
+        return {
+            query: {
+                bool: {
+                    "must_not": must_not,
+                    filter: must
+                }
+            },
+            aggs: {
+                unique_categoria: {
+                    terms: {
+                        field: "categorias.keyword"
+                    }
+                }
+            }
+        }
+    }
+
     function queryPersonalizacion(parametrosEntrada) {
         return {
             size: parametrosEntrada.cantidadProductos,
@@ -395,6 +425,7 @@ var elasticSearch = (function () {
         queryBuscador: queryBuscador,
         queryPersonalizacion: queryPersonalizacion,
         queryRecomendacion: queryRecomendacion,
+        queryCategorias: queryCategorias,
         ejecutar: ejecutar
     };
 

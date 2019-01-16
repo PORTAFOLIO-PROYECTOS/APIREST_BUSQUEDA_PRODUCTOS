@@ -3,6 +3,7 @@
 const buscadorRepository = require("../repositories/buscador"),
     stockRepository = require("../repositories/stock"),
     recomendacionRepository = require("../repositories/recomendacion"),
+    categoriaRepository = require("../repositories/categoria"),
     parametrosSalida = require("../models/buscador/parametros-salida"),
     parametrosFiltro = require("../models/buscador/parametros-filtro"),
     utils = require("../utils/utils"),
@@ -72,6 +73,17 @@ class baseController {
         }
     }
 
+    async ejecutarCategoria() {
+        try {
+            let data = await this.ejecutarQueryCategoria();
+            return {
+                data: data
+            }
+        } catch (error) {
+            console.log("Error en baseController/ejecutarCategoria:", error);
+        }
+    }
+
     /**
      * retornará en formato JSON los datos de Redis o SQL
      * @param {string} key - Key del chache de redis formado por ambiente-nameAPP-isopais-[nombre]
@@ -128,6 +140,24 @@ class baseController {
             });
         } catch (error) {
             console.log("Error en ejecutarQueryRecomendacion", error);
+            return [];
+        }
+    }
+
+    async ejecutarQueryCategoria(){
+        try {
+            const categoria = new categoriaRepository();
+            return new Promise((resolve, reject) => {
+                categoria.ejecutar(this.parametros).then((resp) => {
+                    console.log("resp", resp);
+                    resolve(resp);
+                }, (err) => {
+                    console.log("Error: al consultar ES");
+                    reject(err);
+                });
+            });
+        } catch (error) {
+            console.log("Error en ejecutarQueryCategoria", error);
             return [];
         }
     }

@@ -14,8 +14,8 @@ const config = {
         newrelic_license_key: "694adcc764c2db2bd666f7872e0614f95278a20b"
     },
     elasticsearch: {
-        host: "https://vpc-es-sbsearch-qas-u4pht5gehqu3pmsc4x5srachwu.us-east-1.es.amazonaws.com",
-        index: "dev_producto",
+        host: "https://vpc-es-sbsearch-qa-6lqloaf2kfljixcaekbyqxu2aa.us-east-1.es.amazonaws.com",
+        index: "producto",
         type: "_doc",
         log: ""
     },

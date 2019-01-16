@@ -4,7 +4,6 @@ module.exports = class ParametrosEntrada {
         codigoCampania,
         codigoConsultora,
         codigoZona,
-        textoBusqueda,
         sociaEmpresaria,
         suscripcionActiva,
         mdo,
@@ -18,6 +17,13 @@ module.exports = class ParametrosEntrada {
         this.codigoCampania = codigoCampania;
         this.codigoConsultora = codigoConsultora;
         this.codigoZona = codigoZona;
-        
+        this.sociaEmpresaria = sociaEmpresaria;
+        this.suscripcionActiva = suscripcionActiva;
+        this.mdo = mdo;
+        this.rd = rd;
+        this.rdi = rdi;
+        this.rdr = rdr;
+        this.diaFacturacion = diaFacturacion;
+        this.personalizaciones = personalizaciones;   
     }
 }
