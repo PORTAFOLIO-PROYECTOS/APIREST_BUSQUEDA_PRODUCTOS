@@ -10,8 +10,7 @@ const buscadorRepository = require("../repositories/buscador"),
     config = require("../../config"),
     redisConectar = require("../utils/redis"),
     redis = new redisConectar(),
-    sqlBuscadorFiltros = require("../repositories/sql-buscador-filtros-lista"),
-    sqlBuscadorFiltrosLista = new sqlBuscadorFiltros();
+    sql = require("../repositories/sql-datos");
 
 class baseController {
 
@@ -23,8 +22,8 @@ class baseController {
      */
     async ejecutarBusqueda() {
         try {
-            let name = `${config.ambiente}_${config.name}_${this.parametros.codigoPais}_SeccionFiltroBuscador`,
-                dataRedis = await this.obtenerDatosRedis(name, this.parametros.codigoPais),
+            let name = `${config.ambiente}_${config.name}_${this.parametros.codigoPais}_SeccionesFiltroBuscador`,
+                dataRedis = await this.obtenerDatosRedis(name),
                 dataElastic = await this.ejecutarQueryBuscador(dataRedis),
                 productos = [],
                 SAPs = [],
@@ -59,7 +58,7 @@ class baseController {
                 total = dataElastic.hits.total;
 
             productos = this.devuelveJSONProductos(dataElastic, SAPs);
-           // productos = await this.validarStock(SAPs, this.parametros.codigoPais, this.parametros.diaFacturacion, productos, true);
+            // productos = await this.validarStock(SAPs, this.parametros.codigoPais, this.parametros.diaFacturacion, productos, true);
             //productos = this.devuelveJSONProductosRecomendacion(dataElastic);
             if (productos.length === 0) total = 0;
             total = productos.length;
@@ -73,10 +72,16 @@ class baseController {
         }
     }
 
+    /**
+     * Devuelve JSON con las categorías que tiene disponible la consultora
+     */
     async ejecutarCategoria() {
         try {
-            let data = await this.ejecutarQueryCategoria();
+            let name = `${config.ambiente}_${config.name}_${this.parametros.codigoPais}_CategoriasBusquedaMobile`,
+                data = await this.ejecutarQueryCategoria(),
+                dataRedis = await this.obtenerDatosRedis(name, "categoria");
             return {
+                dataRedis: dataRedis,
                 data: data
             }
         } catch (error) {
@@ -89,11 +94,17 @@ class baseController {
      * @param {string} key - Key del chache de redis formado por ambiente-nameAPP-isopais-[nombre]
      * @param {string} isoPais - ISO del país
      */
-    async obtenerDatosRedis(key, isoPais) {
+    async obtenerDatosRedis(key, method) {
         try {
+            let sqlDatos = new sql(this.parametros.codigoPais);
             let dataRedis = await redis.get(key);
             if (dataRedis === null || dataRedis === "") {
-                let resultSql = JSON.stringify(await sqlBuscadorFiltrosLista.Lista(isoPais));//- Consulta en SQLServer
+                let resultSql = "";
+                if (method === "categoria") {
+                    resultSql = JSON.stringify(await sqlDatos.listaCategoria());
+                } else {
+                    resultSql = JSON.stringify(await sqlDatos.listaBusqueda());
+                }
                 let setRedis = await redis.set(key, resultSql);//- Inserción de la consulta en REDIS
                 if (!setRedis) return false;
                 dataRedis = resultSql;
@@ -144,7 +155,7 @@ class baseController {
         }
     }
 
-    async ejecutarQueryCategoria(){
+    async ejecutarQueryCategoria() {
         try {
             const categoria = new categoriaRepository();
             return new Promise((resolve, reject) => {
@@ -187,7 +198,7 @@ class baseController {
                     let array = [];
                     for (const key in productos) {
                         const element = productos[key];
-                        if (element.Stock === true){
+                        if (element.Stock === true) {
                             array.push(element);
                         }
                     }
