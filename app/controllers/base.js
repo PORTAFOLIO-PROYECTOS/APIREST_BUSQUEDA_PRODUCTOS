@@ -80,10 +80,9 @@ class baseController {
             let name = `${config.ambiente}_${config.name}_${this.parametros.codigoPais}_CategoriasBusquedaMobile`,
                 data = await this.ejecutarQueryCategoria(),
                 dataRedis = await this.obtenerDatosRedis(name, "categoria");
-            return {
-                dataRedis: dataRedis,
-                data: data
-            }
+
+            return this.devuelveJSONCategorias(data, dataRedis);
+
         } catch (error) {
             console.log("Error en baseController/ejecutarCategoria:", error);
         }
@@ -100,11 +99,13 @@ class baseController {
             let dataRedis = await redis.get(key);
             if (dataRedis === null || dataRedis === "") {
                 let resultSql = "";
+
                 if (method === "categoria") {
                     resultSql = JSON.stringify(await sqlDatos.listaCategoria());
                 } else {
                     resultSql = JSON.stringify(await sqlDatos.listaBusqueda());
                 }
+
                 let setRedis = await redis.set(key, resultSql);//- Inserción de la consulta en REDIS
                 if (!setRedis) return false;
                 dataRedis = resultSql;
@@ -160,7 +161,6 @@ class baseController {
             const categoria = new categoriaRepository();
             return new Promise((resolve, reject) => {
                 categoria.ejecutar(this.parametros).then((resp) => {
-                    console.log("resp", resp);
                     resolve(resp);
                 }, (err) => {
                     console.log("Error: al consultar ES");
@@ -289,40 +289,30 @@ class baseController {
         return resultado;
     }
 
-    /**
-     * Devuelve productos que solamente son de Estrategia Individual y pertenece al catálogo físico de L'Bel, Ésika o Cyzone
-     * @param {array} data - Resultado de ES
-     */
-    /*devuelveJSONProductosRecomendacion(data) {
-        let productos = [];
+    devuelveJSONCategorias(dataES, dataRedis) {
+        if (!dataES || !dataRedis) return [];
+        let dataCategorias = dataES.aggregations.unique_categoria.buckets,
+            resultado = [];
+            
+        for (const key in dataRedis) {
+            const element = dataRedis[key];
+            let categoria = dataCategorias.find(x => x.key === element.Nombre);
 
-        for (const key in data.hits.hits) {
-            const element = data.hits.hits[key],
-                source = element._source,
-                imagen = utils.getUrlImagen(source.imagen, this.parametros.codigoPais, source.imagenOrigen, this.parametros.codigoCampania, source.marcaId);
+            if (categoria) {
+                resultado.push(
+                    {
+                        codigo: element.codigo,
+                        nombre: element.Nombre,
+                        cantidad: categoria.doc_count,
+                        imagen: element.imagen
+                    }
+                );
+            }
 
-            productos.push(new parametrosSalida(
-                source.cuv,
-                source.codigoProducto,
-                imagen ? imagen : "no_tiene_imagen.jpg",
-                source.descripcion,
-                source.valorizado ? source.valorizado : 0,
-                source.precio,
-                source.marcaId,
-                source.tipoPersonalizacion,
-                source.codigoEstrategia ? source.codigoEstrategia : 0,
-                source.codigoTipoEstrategia ? source.codigoTipoEstrategia : "0",
-                source.tipoEstrategiaId ? source.tipoEstrategiaId : 0,
-                source.limiteVenta ? source.limiteVenta : 0,
-                true,
-                source.estrategiaId
-            ));
-
-            if (productos.length === this.parametros.cantidadProductos) return productos;
         }
 
-        return productos;
-    }*/
+        return resultado;
+    }
 }
 
 module.exports = baseController;
