@@ -1,17 +1,14 @@
 const elasticSearch = require("./elasticSearch");
 
-var recomendacionRepository = (function() {
+module.exports = class Recomendacion {
 
-    async function buscar(parametrosEntrada) {
-        let body = elasticSearch.queryRecomendacion(parametrosEntrada);
-        console.info("Query ES:\n" + JSON.stringify(body));
-        return elasticSearch.ejecutar(parametrosEntrada, body);
+    constructor(parametrosEntrada) {
+        this.parametrosEntrada = parametrosEntrada;
     }
 
-    return {
-        buscar: buscar
-    };
-
-})();
-
-module.exports = recomendacionRepository;
+    async ejecutar() {
+        let body = elasticSearch.queryRecomendacion(this.parametrosEntrada);
+        console.info("QUERY ES RECOMENDACIONES:\n" + JSON.stringify(body));
+        return elasticSearch.ejecutar(this.parametrosEntrada, body);
+    }
+}

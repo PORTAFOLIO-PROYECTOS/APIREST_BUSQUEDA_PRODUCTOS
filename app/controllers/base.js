@@ -1,9 +1,6 @@
 "use strict";
 
-const buscadorRepository = require("../repositories/buscador"),
-    stockRepository = require("../repositories/stock"),
-    recomendacionRepository = require("../repositories/recomendacion"),
-    categoriaRepository = require("../repositories/categoria"),
+const ejecucionRepositories = require("./ejecucion-repostories"),
     parametrosSalida = require("../models/buscador/parametros-salida"),
     parametrosFiltro = require("../models/buscador/parametros-filtro"),
     utils = require("../utils/utils"),
@@ -22,9 +19,10 @@ class baseController {
      */
     async ejecutarBusqueda() {
         try {
+            const repositories = new ejecucionRepositories(this.parametros);
             let name = `${config.ambiente}_${config.name}_${this.parametros.codigoPais}_SeccionesFiltroBuscador`,
                 dataRedis = await this.obtenerDatosRedis(name),
-                dataElastic = await this.ejecutarQueryBuscador(dataRedis),
+                dataElastic = await repositories.ejecutarQueryBuscador(dataRedis),
                 productos = [],
                 SAPs = [],
                 filtros = [],
@@ -32,7 +30,7 @@ class baseController {
 
             productos = this.devuelveJSONProductos(dataElastic, SAPs);
 
-            productos = await this.validarStock(SAPs, this.parametros.codigoPais, this.parametros.diaFacturacion, productos, false);
+            productos = await repositories.validarStock(SAPs, this.parametros.codigoPais, this.parametros.diaFacturacion, productos, false);
 
             filtros = this.devuelveJSONFiltros(dataElastic, dataRedis);
 
@@ -52,14 +50,14 @@ class baseController {
      */
     async ejecutarRecomendaciones() {
         try {
-            let dataElastic = await this.ejecutarQueryRecomendacion(),
+            const repositories = new ejecucionRepositories(this.parametros);
+            let dataElastic = await repositories.ejecutarQueryRecomendacion(),
                 productos = [],
                 SAPs = [],
                 total = dataElastic.hits.total;
 
             productos = this.devuelveJSONProductos(dataElastic, SAPs);
-            // productos = await this.validarStock(SAPs, this.parametros.codigoPais, this.parametros.diaFacturacion, productos, true);
-            //productos = this.devuelveJSONProductosRecomendacion(dataElastic);
+            
             if (productos.length === 0) total = 0;
             total = productos.length;
 
@@ -77,8 +75,9 @@ class baseController {
      */
     async ejecutarCategoria() {
         try {
+            const repositories = new ejecucionRepositories(this.parametros);
             let name = `${config.ambiente}_${config.name}_${this.parametros.codigoPais}_CategoriasBusquedaMobile`,
-                data = await this.ejecutarQueryCategoria(),
+                data = await repositories.ejecutarQueryCategoria(),
                 dataRedis = await this.obtenerDatosRedis(name, "categoria");
 
             return this.devuelveJSONCategorias(data, dataRedis);
@@ -114,102 +113,6 @@ class baseController {
         } catch (error) {
             console.log("error en obtenerDatosRedis", error);
             return [];
-        }
-    }
-
-    /**
-     * Ejecuta la query de ES
-     * @param {array} rangosRedis - Datos de redis
-     */
-    async ejecutarQueryBuscador(dataRedis) {
-        try {
-            return new Promise((resolve, reject) => {
-                buscadorRepository.buscar(this.parametros, dataRedis).then((resp) => {
-                    resolve(resp);
-                }, (err) => {
-                    console.log("Error: al consultar ES");
-                    reject(err);
-                });
-            });
-        } catch (error) {
-            console.log("Error en ejecutarQueryBuscador", error);
-            return [];
-        }
-    }
-
-    /**
-     * Ejecuta la query de ES
-     */
-    async ejecutarQueryRecomendacion() {
-        try {
-            return new Promise((resolve, reject) => {
-                recomendacionRepository.buscar(this.parametros).then((resp) => {
-                    resolve(resp);
-                }, (err) => {
-                    console.log("Error: al consultar ES");
-                    reject(err);
-                });
-            });
-        } catch (error) {
-            console.log("Error en ejecutarQueryRecomendacion", error);
-            return [];
-        }
-    }
-
-    async ejecutarQueryCategoria() {
-        try {
-            const categoria = new categoriaRepository();
-            return new Promise((resolve, reject) => {
-                categoria.ejecutar(this.parametros).then((resp) => {
-                    resolve(resp);
-                }, (err) => {
-                    console.log("Error: al consultar ES");
-                    reject(err);
-                });
-            });
-        } catch (error) {
-            console.log("Error en ejecutarQueryCategoria", error);
-            return [];
-        }
-    }
-
-    /**
-     * Devuelve json de productos validados con el STOCK
-     * @param {array} SAPs - Codigos SAPs a validar
-     * @param {string} isoPais - ISO del país
-     * @param {int} diaFacturacion - Día de facturación 
-     * @param {array} productos - Lista de productos a validar
-     * @param {boolean} recomendados - Flag para validar si es una recomendación u otro
-     */
-    async validarStock(SAPs, isoPais, diaFacturacion, productos, recomendados) {
-        try {
-            if (config.flags.validacionStock && diaFacturacion >= 0) {
-                let dataStock = await stockRepository.Validar(SAPs, isoPais);
-                for (const i in dataStock) {
-                    for (const j in productos) {
-                        if (dataStock[i].codsap === productos[j].SAP) {
-                            productos[j].Stock = dataStock[i].estado === 1 ? true : false;
-                            break;
-                        }
-                    }
-                }
-
-                if (recomendados) {
-                    let array = [];
-                    for (const key in productos) {
-                        const element = productos[key];
-                        if (element.Stock === true) {
-                            array.push(element);
-                        }
-                    }
-                    productos = array;
-                }
-            }
-
-            return productos;
-        } catch (error) {
-            console.log("Error en validarStock", error);
-            return productos;
         }
     }
 
@@ -293,7 +196,7 @@ class baseController {
         if (!dataES || !dataRedis) return [];
         let dataCategorias = dataES.aggregations.unique_categoria.buckets,
             resultado = [];
-            
+
         for (const key in dataRedis) {
             const element = dataRedis[key];
             let categoria = dataCategorias.find(x => x.key === element.Nombre);

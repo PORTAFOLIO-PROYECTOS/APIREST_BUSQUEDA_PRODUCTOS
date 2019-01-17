@@ -1,17 +1,15 @@
 const elasticSearch = require("./elasticSearch");
 
-var buscadorRepository = (function() {
+module.exports = class Buscador {
 
-    async function buscar(parametrosEntrada, dataRedis) {
-        let body = elasticSearch.queryBuscador(parametrosEntrada, dataRedis);
-        console.info("Query ES:\n" + JSON.stringify(body));
-        return elasticSearch.ejecutar(parametrosEntrada, body);
+    constructor(parametrosEntrada, dataRedis) {
+        this.parametrosEntrada = parametrosEntrada;
+        this.dataRedis = dataRedis;
     }
 
-    return {
-        buscar: buscar
-    };
-
-})();
-
-module.exports = buscadorRepository;
+    async ejecutar(){
+        let body = elasticSearch.queryBuscador(this.parametrosEntrada, this.dataRedis);
+        console.info("QUERY ES BUSCADOR:\n" + JSON.stringify(body));
+        return elasticSearch.ejecutar(this.parametrosEntrada, body);
+    }
+}
