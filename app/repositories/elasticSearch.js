@@ -312,9 +312,9 @@ var elasticSearch = (function () {
         queryPersonalizacionesYCondiciones(parametrosEntrada, personalizaciones, must, false);
 
         let aggregation = queryAggregation(dataRedis);
-        let multi_match = queryMultiMatch(parametrosEntrada.textoBusqueda);
+        let multi_match = parametrosEntrada.textoBusqueda === "" ? [] : queryMultiMatch(parametrosEntrada.textoBusqueda);
         let must_not = queryNegaciones(parametrosEntrada, false);
-
+        
         return {
             from: parametrosEntrada.fromValue,
             size: parametrosEntrada.cantidadProductos,
