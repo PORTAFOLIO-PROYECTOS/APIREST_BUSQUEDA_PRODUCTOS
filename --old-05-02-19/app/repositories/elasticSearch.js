@@ -267,7 +267,6 @@ var elasticSearch = (function () {
      * Retorna json con lo que se quiere negar en la consulta
      */
     function queryNegaciones(parametrosEntrada, recomendaciones) {
-        let origen = parametrosEntrada.origen === undefined ? "" : parametrosEntrada.origen.toLowerCase();
         let must = [
             {
                 terms: {
@@ -283,20 +282,14 @@ var elasticSearch = (function () {
                 },
                 {
                     term: { "tipoPersonalizacion": "LIQ" }
+                },
+                {
+                    term: { "tipoPersonalizacion": "CAT" }
+                },
+                {
+                    term: { "codigoEstrategia": 2003 }
                 }
             );
-
-            if (origen !== "sb-mobile") {
-                must.push({
-                    term: { "tipoPersonalizacion": "CAT" }
-                });
-            } else {
-                if (!parametrosEntrada.mostrarProductoConsultado) {
-                    must.push({
-                        term: { "tipoPersonalizacion": "CAT" }
-                    });
-                }
-            }
         }
 
         return [{
@@ -319,8 +312,9 @@ var elasticSearch = (function () {
         queryPersonalizacionesYCondiciones(parametrosEntrada, personalizaciones, must, false);
 
         let aggregation = queryAggregation(dataRedis);
-        let multi_match = parametrosEntrada.textoBusqueda === "" || parametrosEntrada.textoBusqueda === null ? [] : queryMultiMatch(parametrosEntrada.textoBusqueda);
-
+        let multi_match = parametrosEntrada.textoBusqueda === "" ? [] : queryMultiMatch(parametrosEntrada.textoBusqueda);
+        let must_not = queryNegaciones(parametrosEntrada, false);
+        
         return {
             from: parametrosEntrada.fromValue,
             size: parametrosEntrada.cantidadProductos,
@@ -328,6 +322,7 @@ var elasticSearch = (function () {
             query: {
                 bool: {
                     "must": multi_match,
+                    "must_not": must_not,
                     filter: must
                 }
             },
@@ -341,19 +336,13 @@ var elasticSearch = (function () {
      */
     function queryRecomendacion(parametrosEntrada) {
         let personalizaciones = config.constantes.Personalizacion,
-            must = queryParametrosEnDuro(),
-            origen = parametrosEntrada.origen === undefined ? "" : parametrosEntrada.origen.toLowerCase();
+            must = queryParametrosEnDuro();
+
+        //queryFiltros(parametrosEntrada, must);
 
         let parametrosPersonalizacion = personalizaciones.filter(per => per !== "GND");
+        parametrosPersonalizacion = parametrosPersonalizacion.filter(per => per !== "CAT");
         parametrosPersonalizacion = parametrosPersonalizacion.filter(per => per !== "LIQ");
-
-        if (origen !== "sb-mobile") {
-            parametrosPersonalizacion = parametrosPersonalizacion.filter(per => per !== "CAT");
-        } else {
-            if (!parametrosEntrada.mostrarProductoConsultado) {
-                parametrosPersonalizacion = parametrosPersonalizacion.filter(per => per !== "CAT");
-            }
-        }
 
         queryPersonalizacionesYCondiciones(parametrosEntrada, parametrosPersonalizacion, must, true);
 

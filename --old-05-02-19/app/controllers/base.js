@@ -20,17 +20,17 @@ class baseController {
     async ejecutarBusqueda() {
         try {
             const repositories = new ejecucionRepositories(this.parametros);
-            let name = `${config.ambiente}_${config.name}_${this.parametros.codigoPais}_SeccionFiltroBuscador`,
+            let name = `${config.ambiente}_${config.name}_${this.parametros.codigoPais}_SeccionesFiltroBuscador`,
                 dataRedis = await this.obtenerDatosRedis(name),
                 dataElastic = await repositories.ejecutarQueryBuscador(dataRedis),
                 productos = [],
-                CUVs = [],
+                SAPs = [],
                 filtros = [],
                 total = dataElastic.hits.total;
 
-            productos = this.devuelveJSONProductos(dataElastic, CUVs);
+            productos = this.devuelveJSONProductos(dataElastic, SAPs);
 
-            productos = await repositories.validarStock(CUVs, productos, false);
+            productos = await repositories.validarStock(SAPs, this.parametros.codigoPais, this.parametros.diaFacturacion, productos, false);
 
             filtros = this.devuelveJSONFiltros(dataElastic, dataRedis);
 
@@ -57,7 +57,7 @@ class baseController {
                 total = dataElastic.hits.total;
 
             productos = this.devuelveJSONProductos(dataElastic, SAPs);
-
+            
             if (productos.length === 0) total = 0;
             total = productos.length;
 
@@ -119,9 +119,9 @@ class baseController {
     /**
      * Devuelve array con los productos validados
      * @param {json} data - Resultado de la consulta de ES
-     * @param {array} CUVs - Retorno de codigos CUVs
+     * @param {array} SAPs - Retorno de codigos SAPS
      */
-    devuelveJSONProductos(data, CUVs) {
+    devuelveJSONProductos(data, SAPs) {
         let productos = [];
 
         for (const key in data.hits.hits) {
@@ -147,8 +147,8 @@ class baseController {
                 source.materialGanancia ? true : false
             ));
 
-            if (CUVs.indexOf(source.cuv) < 0 && (source.cuv !== undefined || source.cuv !== null)) {
-                CUVs.push(source.cuv);
+            if (SAPs.indexOf(source.codigoProducto) < 0 && (source.codigoProducto !== undefined || source.codigoProducto !== null)) {
+                SAPs.push(source.codigoProducto);
             }
         }
 
@@ -171,25 +171,23 @@ class baseController {
                 filtroResultadoES = data.aggregations[`${item.nombre}-${item.id}`].buckets,
                 filtroEnParametros = this.parametros.filtro.find(x => x.NombreGrupo === item.nombre);
 
-            if (filtroResultadoES.length > 0) {
-                for (const i in filtroEnSeccionRedis) {
-                    const filter = filtroEnSeccionRedis[i];
-                    const dataES = filtroResultadoES.find(x => x.key === filter.FiltroNombre);
-                    const dataEntrada = filtroEnParametros === undefined ? filtroEnParametros : filtroEnParametros.Opciones.find(x => x.IdFiltro === filter.Codigo);
-                    armando.push(
-                        new parametrosFiltro(
-                            filter.Codigo,
-                            filter.FiltroNombre,
-                            dataES === undefined ? 0 : dataES.doc_count,
-                            dataEntrada === undefined ? false : true
-                        )
-                    );
-                }
-                resultado.push({
-                    NombreGrupo: item.nombre,
-                    Opciones: armando
-                });
+            for (const i in filtroEnSeccionRedis) {
+                const filter = filtroEnSeccionRedis[i];
+                const dataES = filtroResultadoES.find(x => x.key === filter.FiltroNombre);
+                const dataEntrada = filtroEnParametros === undefined ? filtroEnParametros : filtroEnParametros.Opciones.find(x => x.IdFiltro === filter.Codigo);
+                armando.push(
+                    new parametrosFiltro(
+                        filter.Codigo,
+                        filter.FiltroNombre,
+                        dataES === undefined ? 0 : dataES.doc_count,
+                        dataEntrada === undefined ? false : true
+                    )
+                );
             }
+            resultado.push({
+                NombreGrupo: item.nombre,
+                Opciones: armando
+            });
         }
         return resultado;
     }
@@ -203,15 +201,17 @@ class baseController {
             const element = dataRedis[key];
             let categoria = dataCategorias.find(x => x.key === element.Nombre);
 
-            resultado.push(
-                {
-                    codigo: element.codigo,
-                    nombre: element.Nombre,
-                    cantidad: categoria ? categoria.doc_count : 0,
-                    imagen: element.imagen,
-                    imagenAncha: element.imagenAncha === 1 ? true : false
-                }
-            );
+            if (categoria) {
+                resultado.push(
+                    {
+                        codigo: element.codigo,
+                        nombre: element.Nombre,
+                        cantidad: categoria.doc_count,
+                        imagen: element.imagen
+                    }
+                );
+            }
+
         }
 
         return resultado;

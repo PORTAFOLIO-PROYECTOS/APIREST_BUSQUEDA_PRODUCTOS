@@ -1,19 +1,17 @@
 "use strict";
 
-const parametrosEntrada = require("../models/recomendacion/parametros-entrada"),
+const parametrosEntrada = require("../models/buscador/parametros-entrada"),
+    utils = require("../utils/utils"),
     base = require("./base");
 
-exports.recomendaciones = async function (req, res, next){
+exports.busqueda = async function (req, res, next) {
     let baseController = new base(new parametrosEntrada(
         req.params.codigoPais,
         req.params.codigocampania,
-        req.params.origen,
         req.body.codigoConsultora,
         req.body.codigoZona,
-        req.body.cuv,
-        req.body.codigoProducto,
-        req.body.cantidadProductos,
-        req.body.personalizaciones,
+        req.body.textoBusqueda,
+        req.body.paginacion.cantidad,
         req.body.configuracion.sociaEmpresaria,
         req.body.configuracion.suscripcionActiva,
         req.body.configuracion.mdo,
@@ -21,14 +19,19 @@ exports.recomendaciones = async function (req, res, next){
         req.body.configuracion.rdi,
         req.body.configuracion.rdr,
         req.body.configuracion.diaFacturacion,
-        req.body.configuracion.mostrarProductoConsultado
+        req.body.personalizaciones,
+        req.body.paginacion.numeroPagina,
+        req.body.orden.campo,
+        req.body.orden.tipo,
+        utils.validarFiltro(req.body.filtro)
     ));
 
     try {
-        let e = await baseController.ejecutarRecomendaciones();
-        res.json(e);
+        let d = await baseController.ejecutarBusqueda();
+        res.json(d);
         next();
     } catch (error) {
-        console.log("Error en el POST RECOMENDACIONES: ", error);
+        console.log("Error en el POST BUSQUEDA: ", error);
+        next(error);
     }
-}
+};

@@ -15,7 +15,7 @@ const config = {
     },
     elasticsearch: {
         host: "https://vpc-es-sbsearch-qa-6lqloaf2kfljixcaekbyqxu2aa.us-east-1.es.amazonaws.com",
-        index: "dev_producto_v1",
+        index: "producto",
         type: "_doc",
         log: ""
     },
@@ -51,7 +51,7 @@ const config = {
     constantes: {
         urlImagenesSB: "https://cdn1-prd.somosbelcorp.com/",
         urlImagenesAppCatalogo: "https://s3-sa-east-1.amazonaws.com/appcatalogo/",
-        urlApiProl: "http://internal-qaelb-webprol-182416748.us-east-1.elb.amazonaws.com:81/api/Pedido/ValidacionStockPalancas",
+        urlApiProl: "http://internal-qaelb-webprol-182416748.us-east-1.elb.amazonaws.com:81/api/Pedido/ValidacionStock",
         Matriz: "Matriz",
         Personalizacion: ["GND", "LAN", "ODD", "OPM", "OPT", "PAD", "SR", "LIQ", "CAT", "HV"],
         consultoraX: "XXXXXXXXX",

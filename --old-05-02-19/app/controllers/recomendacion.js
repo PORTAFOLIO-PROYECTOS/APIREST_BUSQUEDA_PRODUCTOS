@@ -7,7 +7,6 @@ exports.recomendaciones = async function (req, res, next){
     let baseController = new base(new parametrosEntrada(
         req.params.codigoPais,
         req.params.codigocampania,
-        req.params.origen,
         req.body.codigoConsultora,
         req.body.codigoZona,
         req.body.cuv,
@@ -21,7 +20,6 @@ exports.recomendaciones = async function (req, res, next){
         req.body.configuracion.rdi,
         req.body.configuracion.rdr,
         req.body.configuracion.diaFacturacion,
-        req.body.configuracion.mostrarProductoConsultado
     ));
 
     try {

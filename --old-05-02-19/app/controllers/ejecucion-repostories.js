@@ -69,21 +69,21 @@ module.exports = class EjecucionesRepositories {
 
     /**
      * Devuelve json de productos validados con el STOCK
-     * @param {array} CUVs - Codigos SAPs a validar
+     * @param {array} SAPs - Codigos SAPs a validar
+     * @param {string} isoPais - ISO del país
+     * @param {int} diaFacturacion - Día de facturación 
      * @param {array} productosES - Lista de productos a validar
      * @param {boolean} recomendados - Flag para validar si es una recomendación u otro
      */
-    async validarStock(CUVs, productosES, recomendados) {
-        const stock = new stockRepository();
+    async validarStock(SAPs, isoPais, diaFacturacion, productosES, recomendados) {
         let productos = productosES;
-
         try {
-            if (config.flags.validacionStock && this.parametros.diaFacturacion >= 0) {
-                let dataStock = await stock.validar(this.parametros.codigoPais, this.parametros.codigoCampania, CUVs);
+            if (config.flags.validacionStock && diaFacturacion >= 0) {
+                let dataStock = await stockRepository.Validar(SAPs, isoPais);
                 for (const i in dataStock) {
                     for (const j in productos) {
-                        if (dataStock[i].coD_VENTA_PADRE === productos[j].CUV) {
-                            productos[j].Stock = dataStock[i].stock === 1 ? true : false;
+                        if (dataStock[i].codsap === productos[j].SAP) {
+                            productos[j].Stock = dataStock[i].estado === 1 ? true : false;
                             break;
                         }
                     }

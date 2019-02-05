@@ -1,19 +1,26 @@
 const request = require("sync-request");
 const config = require("../../config");
 
-module.exports = class Stock {
-    async validar(isoPais, campaniaId, CUVs){
-        let valCUVs = CUVs.join("|");
+var stockRepository = (function () {
+
+    async function Validar(saps, iso) {
+        let codigoProductos = saps.join("|");
+
         return new Promise((resolve) => {
             let peticion = request("POST", config.constantes.urlApiProl, {
                 json: {
-                    paisISO: isoPais,
-                    campaniaID: campaniaId,
-                    listaCUVs: valCUVs,
-                    flagDetalle: 0
+                    SAPs: codigoProductos,
+                    ISOPais: iso
                 }
             });
             resolve(JSON.parse(peticion.getBody("utf8")));
-        })
+        });
     }
-}
+
+    return {
+        Validar: Validar
+    }
+
+})();
+
+module.exports = stockRepository;
